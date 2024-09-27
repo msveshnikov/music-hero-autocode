@@ -90,8 +90,4 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## TODO
 
--   Implement responsive design for mobile devices
--   Resolve Uncaught runtime errors in setValueAtTime function
--   Implement error handling and logging system
--   Set up continuous integration and deployment pipeline
--   Implement MIDI device support
+-   Fix UI add paddings make design cool
