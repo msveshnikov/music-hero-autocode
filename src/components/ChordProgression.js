@@ -4,6 +4,8 @@ import * as Tone from 'tone';
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
     minor: ['Cm', 'Ddim', 'Eb', 'Fm', 'Gm', 'Ab', 'Bb'],
+    jazz: ['Cmaj7', 'Dm7', 'Em7', 'Fmaj7', 'G7', 'Am7', 'Bm7b5'],
+    blues: ['C7', 'F7', 'G7', 'Cm7', 'F7', 'Bb7']
 };
 
 const ChordProgression = () => {
@@ -11,9 +13,14 @@ const ChordProgression = () => {
     const [key, setKey] = useState('major');
     const [playing, setPlaying] = useState(false);
     const [synth, setSynth] = useState(null);
+    const [tempo, setTempo] = useState(120);
+    const [progressionLength, setProgressionLength] = useState(4);
 
     useEffect(() => {
-        const newSynth = new Tone.PolySynth().toDestination();
+        const newSynth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: 'sine' },
+            envelope: { attack: 0.05, decay: 0.1, sustain: 0.3, release: 1 }
+        }).toDestination();
         setSynth(newSynth);
         return () => {
             newSynth.dispose();
@@ -22,7 +29,7 @@ const ChordProgression = () => {
 
     const generateProgression = () => {
         const newProgression = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < progressionLength; i++) {
             const randomIndex = Math.floor(Math.random() * chords[key].length);
             newProgression.push(chords[key][randomIndex]);
         }
@@ -37,19 +44,26 @@ const ChordProgression = () => {
         }
 
         await Tone.start();
-        const now = Tone.now();
+        Tone.Transport.bpm.value = tempo;
 
-        progression.forEach((chord, index) => {
-            synth.triggerAttackRelease([`${chord}4`, `${chord}3`], '1n', now + index);
-        });
+        const chordDuration = '2n';
+        const sequence = new Tone.Sequence(
+            (time, chord) => {
+                synth.triggerAttackRelease([`${chord}4`, `${chord}3`], chordDuration, time);
+            },
+            progression,
+            chordDuration
+        );
 
-        setPlaying(true);
+        sequence.start(0);
         Tone.Transport.start();
+        setPlaying(true);
 
-        setTimeout(() => {
+        Tone.Transport.scheduleOnce(() => {
             setPlaying(false);
             Tone.Transport.stop();
-        }, progression.length * Tone.Time('1n').toSeconds() * 1000);
+            sequence.stop();
+        }, `${progression.length}m`);
     };
 
     return (
@@ -58,9 +72,34 @@ const ChordProgression = () => {
             <div>
                 <label htmlFor="key-select">Key: </label>
                 <select id="key-select" value={key} onChange={(e) => setKey(e.target.value)}>
-                    <option value="major">Major</option>
-                    <option value="minor">Minor</option>
+                    {Object.keys(chords).map((chordKey) => (
+                        <option key={chordKey} value={chordKey}>
+                            {chordKey.charAt(0).toUpperCase() + chordKey.slice(1)}
+                        </option>
+                    ))}
                 </select>
+            </div>
+            <div>
+                <label htmlFor="tempo-input">Tempo: </label>
+                <input
+                    id="tempo-input"
+                    type="number"
+                    value={tempo}
+                    onChange={(e) => setTempo(Number(e.target.value))}
+                    min="40"
+                    max="240"
+                />
+            </div>
+            <div>
+                <label htmlFor="length-input">Progression Length: </label>
+                <input
+                    id="length-input"
+                    type="number"
+                    value={progressionLength}
+                    onChange={(e) => setProgressionLength(Number(e.target.value))}
+                    min="2"
+                    max="8"
+                />
             </div>
             <button onClick={generateProgression}>Generate Progression</button>
             <button onClick={playProgression} disabled={progression.length === 0}>

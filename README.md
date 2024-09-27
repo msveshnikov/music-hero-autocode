@@ -92,3 +92,20 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ERROR
 Invalid argument(s) to setValueAtTime: "F/4", 14.849333333333332
     at assert (http://localhost:3000/static/js/bundle.js:79954:11)
+
+    
+1. Create a basic user interface for the notation editor (5 story points)
+   - Implement a staff with clickable note positions
+   - Add functionality to input and delete notes
+
+2. Implement note rendering in the notation editor (3 story points)
+   - Render notes on the staff based on user input
+   - Ensure proper spacing and alignment of notes
+
+3. Integrate Web Audio API for real-time playback (5 story points)
+   - Set up audio context and basic sound generation
+   - Implement play/pause functionality for the composed melody
+
+4. Create a basic virtual instrument library (3 story points)
+   - Implement 3-5 basic instruments (e.g., piano, guitar, flute)
+   - Create a simple interface for instrument selection

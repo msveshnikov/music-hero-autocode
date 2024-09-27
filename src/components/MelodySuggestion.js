@@ -7,6 +7,7 @@ const MelodySuggestion = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [tempo, setTempo] = useState(120);
     const [noteLength, setNoteLength] = useState('8n');
+    const [complexity, setComplexity] = useState(1);
 
     const scales = {
         'C major': ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
@@ -29,10 +30,21 @@ const MelodySuggestion = () => {
     const generateMelody = () => {
         const currentScale = scales[scale];
         const newMelody = [];
-        for (let i = 0; i < 8; i++) {
+        const melodyLength = 8 + complexity * 2;
+
+        for (let i = 0; i < melodyLength; i++) {
             const randomIndex = Math.floor(Math.random() * currentScale.length);
             newMelody.push(currentScale[randomIndex]);
         }
+
+        if (complexity > 1) {
+            for (let i = 0; i < complexity - 1; i++) {
+                const insertIndex = Math.floor(Math.random() * newMelody.length);
+                const randomNote = currentScale[Math.floor(Math.random() * currentScale.length)];
+                newMelody.splice(insertIndex, 0, randomNote);
+            }
+        }
+
         setMelody(newMelody);
     };
 
@@ -84,6 +96,15 @@ const MelodySuggestion = () => {
                         </option>
                     ))}
                 </select>
+                <label htmlFor="complexity-input">Complexity: </label>
+                <input
+                    id="complexity-input"
+                    type="range"
+                    min="1"
+                    max="5"
+                    value={complexity}
+                    onChange={(e) => setComplexity(parseInt(e.target.value))}
+                />
             </div>
             <div className="actions">
                 <button onClick={generateMelody}>Generate Melody</button>
