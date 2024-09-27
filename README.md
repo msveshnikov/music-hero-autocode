@@ -15,14 +15,15 @@ for musicians and composers.
 -   Melody suggestion tool
 -   Real-time collaboration for ensemble compositions
 -   Audio playback and export functionality
+-   AI-powered composition assistance
 
 ## Technology Stack
 
 -   React.js for front-end development
--   Chakra UI and nice design
+-   Chakra UI for responsive design
 -   Web Audio API for sound generation and processing
 -   Tone.js for advanced audio synthesis and effects
--   react-router-dom v6
+-   react-router-dom v6 for routing
 
 ## Design Considerations
 
@@ -38,21 +39,26 @@ for musicians and composers.
 -   WebGL-based visualizations for enhanced user experience
 -   Integration with cloud storage services for seamless backup and sync
 -   AI-powered composition assistance using machine learning models
+-   Social media integration for sharing compositions and collaborations
+-   Version control system for tracking composition history and reverting changes
+-   Integration with music education resources and tutorials
 
 ## Roadmap
 
-1. Implement basic notation editor
-2. Integrate virtual instrument sounds
-3. Develop chord progression and melody suggestion algorithms
-4. Add real-time collaboration features
-5. Implement audio export functionality
+1. Implement basic notation editor and virtual instrument library
+2. Develop chord progression and melody suggestion algorithms
+3. Add real-time collaboration features
+4. Implement audio export functionality
+5. Integrate AI-powered composition assistant
 6. Enhance UI/UX based on user feedback
 7. Implement offline mode and local storage
 8. Add support for custom instrument samples
 9. Develop a mobile app version for on-the-go composition
 10. Implement PWA features
 11. Integrate WebGL-based music visualizations
-12. Develop AI-powered composition assistant
+12. Develop social sharing and community features
+13. Implement version control system for compositions
+14. Integrate music education resources and tutorials
 
 ## Getting Started
 
@@ -65,28 +71,22 @@ for musicians and composers.
 ```
 music-hero/
 ├── package.json
+├── .prettierrc
 ├── public/
 │   ├── index.html
 │   └── landing.html
-└── src/
-    ├── components/
-    │   ├── NotationEditor.js
-    │   ├── InstrumentLibrary.js
-    │   ├── ChordProgression.js
-    │   └── MelodySuggestion.js
-    ├── App.js
-    └── index.js
+├── src/
+│   ├── components/
+│   │   ├── NotationEditor.js
+│   │   ├── InstrumentLibrary.js
+│   │   ├── ChordProgression.js
+│   │   ├── MelodySuggestion.js
+│   │   └── CollaborationSpace.js
+│   ├── hooks/
+│   │   └── useAIIntegration.js
+│   ├── App.js
+│   └── index.js
+└── docs/
+    ├── landing_page_copy.html
+    └── social_media_content.json
 ```
-
-## Contributing
-
-We welcome contributions from the community. Please read our contributing guidelines before
-submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-## TODO
-
--   AI assisted music composing
