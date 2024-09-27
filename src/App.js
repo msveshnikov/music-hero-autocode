@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import * as Tone from 'tone';
 
@@ -27,10 +27,10 @@ const AudioPlayback = () => {
 
     const togglePlayback = async () => {
         if (isPlaying) {
-            await Tone.Transport.stop();
+            Tone.getTransport().stop();
         } else {
             await Tone.start();
-            await Tone.Transport.start();
+            Tone.getTransport().start();
         }
         setIsPlaying(!isPlaying);
     };
@@ -51,6 +51,10 @@ const ExportFunctionality = () => {
 };
 
 function App() {
+    useEffect(() => {
+        Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
+    }, []);
+
     return (
         <Router>
             <div className="App">

@@ -42,13 +42,3 @@ This project aims to create a web-based platform for music composition, offering
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Start the development server: `npm start`
-
-# TODO
-ERROR in ./src/App.js 64:12-31
-export 'Transport' (imported as 'Tone') was not found in 'tone' (module has no exports)
-
-ERROR in ./src/App.js 66:12-22
-export 'start' (imported as 'Tone') was not found in 'tone' (module has no exports)
-
-ERROR in ./src/App.js 67:12-32
-export 'Transport' (imported as 'Tone') was not found in 'tone' (module has no exports)
