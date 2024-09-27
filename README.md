@@ -1,9 +1,14 @@
 # Music Composition Site
 
-## Overview
-
 This project aims to create a web-based platform for music composition, offering tools and resources
 for musicians and composers.
+
+![alt text](public/music.png)
+
+# DEMO
+
+https://music-composer.netlify.app/
+
 
 ## Features
 
