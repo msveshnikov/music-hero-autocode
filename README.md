@@ -2,7 +2,8 @@
 
 ## Overview
 
-This project aims to create a web-based platform for music composition, offering tools and resources for musicians and composers.
+This project aims to create a web-based platform for music composition, offering tools and resources
+for musicians and composers.
 
 ## Features
 
@@ -17,7 +18,6 @@ This project aims to create a web-based platform for music composition, offering
 
 -   React.js for front-end development
 -   Web Audio API for sound generation and processing
--   Firebase for real-time database and authentication
 -   Tone.js for advanced audio synthesis and effects
 -   react-router-dom v6
 
@@ -27,6 +27,10 @@ This project aims to create a web-based platform for music composition, offering
 -   Intuitive user interface for both beginners and professionals
 -   Scalable architecture to support future feature additions
 -   Optimized performance for handling complex musical data
+-   Modular component structure for easier maintenance and testing
+-   Accessibility features for users with disabilities
+-   Dark mode support for reduced eye strain during long composition sessions
+-   Offline mode capabilities for composing without an internet connection
 
 ## Roadmap
 
@@ -36,9 +40,43 @@ This project aims to create a web-based platform for music composition, offering
 4. Add real-time collaboration features
 5. Implement audio export functionality
 6. Enhance UI/UX based on user feedback
+7. Implement offline mode and local storage
+8. Add support for custom instrument samples
+9. Develop a mobile app version for on-the-go composition
 
 ## Getting Started
 
 1. Clone the repository
 2. Install dependencies: `npm install`
 3. Start the development server: `npm start`
+
+## Project Structure
+
+```
+music-composition-site/
+├── .prettierrc
+├── package.json
+├── public/
+│   └── index.html
+└── src/
+    ├── components/
+    │   ├── NotationEditor/
+    │   ├── InstrumentLibrary/
+    │   ├── ChordProgression/
+    │   └── MelodySuggestion/
+    ├── hooks/
+    ├── contexts/
+    ├── utils/
+    ├── styles/
+    ├── App.js
+    └── index.js
+```
+
+## Contributing
+
+We welcome contributions from the community. Please read our contributing guidelines before
+submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
