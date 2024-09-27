@@ -2,12 +2,21 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Vex } from 'vexflow';
 import { Midi } from '@tonejs/midi';
+import {
+    Box,
+    Button,
+    Select,
+    HStack,
+    VStack,
+    Input,
+    useColorModeValue,
+    Text
+} from '@chakra-ui/react';
 
 const NotationEditor = () => {
     const [notes, setNotes] = useState([]);
     const [currentOctave, setCurrentOctave] = useState(4);
     const [currentDuration, setCurrentDuration] = useState('q');
-    const [isDarkMode, setIsDarkMode] = useState(false);
     const [timeSignature, setTimeSignature] = useState('4/4');
     const [bpm, setBpm] = useState(120);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -15,6 +24,9 @@ const NotationEditor = () => {
     const contextRef = useRef(null);
     const staveRef = useRef(null);
     const synthRef = useRef(null);
+
+    const bgColor = useColorModeValue('white', 'gray.800');
+    const textColor = useColorModeValue('gray.800', 'white');
 
     useEffect(() => {
         const div = document.getElementById('notation');
@@ -51,10 +63,6 @@ const NotationEditor = () => {
             }
         }
     }, [notes]);
-
-    useEffect(() => {
-        document.body.classList.toggle('dark-mode', isDarkMode);
-    }, [isDarkMode]);
 
     const addNote = useCallback(
         (noteName) => {
@@ -101,18 +109,6 @@ const NotationEditor = () => {
         setNotes([]);
     }, []);
 
-    const handleOctaveChange = useCallback((event) => {
-        setCurrentOctave(parseInt(event.target.value));
-    }, []);
-
-    const handleDurationChange = useCallback((event) => {
-        setCurrentDuration(event.target.value);
-    }, []);
-
-    const toggleDarkMode = useCallback(() => {
-        setIsDarkMode((prevMode) => !prevMode);
-    }, []);
-
     const exportMIDI = useCallback(() => {
         const midi = new Midi();
         const track = midi.addTrack();
@@ -135,73 +131,65 @@ const NotationEditor = () => {
         URL.revokeObjectURL(url);
     }, [notes]);
 
-    const handleTimeSignatureChange = useCallback((event) => {
-        setTimeSignature(event.target.value);
-    }, []);
-
-    const handleBpmChange = useCallback((event) => {
-        setBpm(parseInt(event.target.value));
-        Tone.Transport.bpm.value = parseInt(event.target.value);
-    }, []);
-
     return (
-        <div className={`notation-editor ${isDarkMode ? 'dark-mode' : ''}`}>
-            <h2>Notation Editor</h2>
-            <div id="notation"></div>
-            <div className="note-buttons">
+        <Box bg={bgColor} color={textColor} p={4} borderRadius="md" boxShadow="md">
+            <Text fontSize="2xl" fontWeight="bold" mb={4}>
+                Notation Editor
+            </Text>
+            <Box id="notation" mb={4}></Box>
+            <HStack spacing={2} mb={4}>
                 {['C', 'D', 'E', 'F', 'G', 'A', 'B'].map((note) => (
-                    <button key={note} onClick={() => addNote(note)}>
+                    <Button key={note} onClick={() => addNote(note)}>
                         {note}
-                    </button>
+                    </Button>
                 ))}
-            </div>
-            <div className="controls">
-                <label>
-                    Octave:
-                    <select value={currentOctave} onChange={handleOctaveChange}>
+            </HStack>
+            <VStack spacing={4} align="stretch">
+                <HStack>
+                    <Select
+                        value={currentOctave}
+                        onChange={(e) => setCurrentOctave(parseInt(e.target.value))}
+                    >
                         {[3, 4, 5].map((octave) => (
                             <option key={octave} value={octave}>
-                                {octave}
+                                Octave {octave}
                             </option>
                         ))}
-                    </select>
-                </label>
-                <label>
-                    Duration:
-                    <select value={currentDuration} onChange={handleDurationChange}>
+                    </Select>
+                    <Select
+                        value={currentDuration}
+                        onChange={(e) => setCurrentDuration(e.target.value)}
+                    >
                         <option value="w">Whole</option>
                         <option value="h">Half</option>
                         <option value="q">Quarter</option>
                         <option value="8">Eighth</option>
                         <option value="16">Sixteenth</option>
-                    </select>
-                </label>
-                <label>
-                    Time Signature:
-                    <select value={timeSignature} onChange={handleTimeSignatureChange}>
+                    </Select>
+                    <Select
+                        value={timeSignature}
+                        onChange={(e) => setTimeSignature(e.target.value)}
+                    >
                         <option value="4/4">4/4</option>
                         <option value="3/4">3/4</option>
                         <option value="6/8">6/8</option>
-                    </select>
-                </label>
-                <label>
-                    BPM:
-                    <input
+                    </Select>
+                    <Input
                         type="number"
                         value={bpm}
-                        onChange={handleBpmChange}
+                        onChange={(e) => setBpm(parseInt(e.target.value))}
                         min="40"
                         max="240"
+                        placeholder="BPM"
                     />
-                </label>
-            </div>
-            <div className="action-buttons">
-                <button onClick={playNotes}>{isPlaying ? 'Stop' : 'Play Notes'}</button>
-                <button onClick={clearNotes}>Clear Notes</button>
-                <button onClick={exportMIDI}>Export MIDI</button>
-                <button onClick={toggleDarkMode}>Toggle Dark Mode</button>
-            </div>
-        </div>
+                </HStack>
+                <HStack>
+                    <Button onClick={playNotes}>{isPlaying ? 'Stop' : 'Play Notes'}</Button>
+                    <Button onClick={clearNotes}>Clear Notes</Button>
+                    <Button onClick={exportMIDI}>Export MIDI</Button>
+                </HStack>
+            </VStack>
+        </Box>
     );
 };
 

@@ -63,9 +63,8 @@ for musicians and composers.
 ## Project Structure
 
 ```
-music-composition-site/
+music-hero/
 ├── package.json
-├── .prettierrc
 ├── public/
 │   ├── index.html
 │   └── landing.html
