@@ -8,6 +8,7 @@ const MelodySuggestion = () => {
     const [tempo, setTempo] = useState(120);
     const [noteLength, setNoteLength] = useState('8n');
     const [complexity, setComplexity] = useState(1);
+    const [synth, setSynth] = useState(null);
 
     const scales = {
         'C major': ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
@@ -21,9 +22,10 @@ const MelodySuggestion = () => {
     const noteLengths = ['16n', '8n', '4n', '2n', '1n'];
 
     useEffect(() => {
-        const synth = new Tone.Synth().toDestination();
+        const newSynth = new Tone.Synth().toDestination();
+        setSynth(newSynth);
         return () => {
-            synth.dispose();
+            newSynth.dispose();
         };
     }, []);
 
@@ -50,7 +52,6 @@ const MelodySuggestion = () => {
 
     const playMelody = async () => {
         await Tone.start();
-        const synth = new Tone.Synth().toDestination();
         setIsPlaying(true);
         const now = Tone.now();
         const duration = Tone.Time(noteLength).toSeconds();
@@ -61,6 +62,93 @@ const MelodySuggestion = () => {
         });
 
         setTimeout(() => setIsPlaying(false), melody.length * interval * 1000);
+    };
+
+    const exportMelody = () => {
+        const midiNotes = melody.map((note) => {
+            const [noteName, octave] = note.split(/(\d+)/);
+            const noteIndex = [
+                'C',
+                'C#',
+                'D',
+                'D#',
+                'E',
+                'F',
+                'F#',
+                'G',
+                'G#',
+                'A',
+                'A#',
+                'B'
+            ].indexOf(noteName);
+            return noteIndex + (parseInt(octave) + 1) * 12;
+        });
+
+        const midiData = [
+            0x4d,
+            0x54,
+            0x68,
+            0x64,
+            0x00,
+            0x00,
+            0x00,
+            0x06,
+            0x00,
+            0x00,
+            0x00,
+            0x01,
+            0x00,
+            0x60,
+            0x4d,
+            0x54,
+            0x72,
+            0x6b,
+            0x00,
+            0x00,
+            0x00,
+            0x3b,
+            0x00,
+            0xff,
+            0x58,
+            0x04,
+            0x04,
+            0x02,
+            0x18,
+            0x08,
+            0x00,
+            0xff,
+            0x51,
+            0x03,
+            0x07,
+            0xa1,
+            0x20,
+            0x00,
+            0xc0,
+            0x00,
+            ...midiNotes.flatMap((note, index) => [
+                0x00,
+                0x90,
+                note,
+                0x64,
+                0x83,
+                0x60,
+                0x80,
+                note,
+                0x00
+            ]),
+            0x00,
+            0xff,
+            0x2f,
+            0x00
+        ];
+
+        const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'melody.mid';
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -110,6 +198,9 @@ const MelodySuggestion = () => {
                 <button onClick={generateMelody}>Generate Melody</button>
                 <button onClick={playMelody} disabled={isPlaying || melody.length === 0}>
                     {isPlaying ? 'Playing...' : 'Play Melody'}
+                </button>
+                <button onClick={exportMelody} disabled={melody.length === 0}>
+                    Export MIDI
                 </button>
             </div>
             <div className="melody-display">

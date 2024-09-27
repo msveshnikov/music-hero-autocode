@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 
 const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [customSamples, setCustomSamples] = useState({});
 
     useEffect(() => {
         const initialInstruments = [
@@ -19,25 +20,31 @@ const InstrumentLibrary = () => {
         setSelectedInstrument(initialInstruments[0]);
     }, []);
 
-    const handleInstrumentSelect = (instrument) => {
+    const handleInstrumentSelect = useCallback((instrument) => {
         setSelectedInstrument(instrument);
-    };
+    }, []);
 
-    const playNote = async (note) => {
-        if (selectedInstrument) {
-            await Tone.start();
-            selectedInstrument.synth.triggerAttackRelease(note, '8n');
-        }
-    };
+    const playNote = useCallback(
+        async (note) => {
+            if (selectedInstrument) {
+                await Tone.start();
+                selectedInstrument.synth.triggerAttackRelease(note, '8n');
+            }
+        },
+        [selectedInstrument]
+    );
 
-    const playChord = async (chord) => {
-        if (selectedInstrument) {
-            await Tone.start();
-            selectedInstrument.synth.triggerAttackRelease(chord, '4n');
-        }
-    };
+    const playChord = useCallback(
+        async (chord) => {
+            if (selectedInstrument) {
+                await Tone.start();
+                selectedInstrument.synth.triggerAttackRelease(chord, '4n');
+            }
+        },
+        [selectedInstrument]
+    );
 
-    const toggleArpeggio = async () => {
+    const toggleArpeggio = useCallback(async () => {
         if (isPlaying) {
             Tone.Transport.stop();
             setIsPlaying(false);
@@ -55,7 +62,27 @@ const InstrumentLibrary = () => {
             Tone.Transport.start();
             setIsPlaying(true);
         }
-    };
+    }, [isPlaying, selectedInstrument]);
+
+    const handleCustomSampleUpload = useCallback((event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const buffer = await Tone.context.decodeAudioData(e.target.result);
+            const sampler = new Tone.Sampler({
+                C4: buffer
+            }).toDestination();
+            setCustomSamples((prevSamples) => ({
+                ...prevSamples,
+                [file.name]: sampler
+            }));
+            setInstruments((prevInstruments) => [
+                ...prevInstruments,
+                { name: file.name, synth: sampler }
+            ]);
+        };
+        reader.readAsArrayBuffer(file);
+    }, []);
 
     return (
         <div className="instrument-library">
@@ -91,6 +118,10 @@ const InstrumentLibrary = () => {
                     </button>
                 </div>
             )}
+            <div className="custom-sample-upload">
+                <h3>Upload Custom Sample</h3>
+                <input type="file" accept="audio/*" onChange={handleCustomSampleUpload} />
+            </div>
         </div>
     );
 };

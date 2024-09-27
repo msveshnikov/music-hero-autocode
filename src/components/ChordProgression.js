@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Tone from 'tone';
+import { Midi, Chord } from '@tonejs/midi';
 
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
@@ -15,6 +16,7 @@ const ChordProgression = () => {
     const [synth, setSynth] = useState(null);
     const [tempo, setTempo] = useState(120);
     const [progressionLength, setProgressionLength] = useState(4);
+    const [complexity, setComplexity] = useState(1);
 
     useEffect(() => {
         const newSynth = new Tone.PolySynth(Tone.Synth, {
@@ -29,9 +31,16 @@ const ChordProgression = () => {
 
     const generateProgression = () => {
         const newProgression = [];
+        const availableChords = [...chords[key]];
         for (let i = 0; i < progressionLength; i++) {
-            const randomIndex = Math.floor(Math.random() * chords[key].length);
-            newProgression.push(chords[key][randomIndex]);
+            const randomIndex = Math.floor(Math.random() * availableChords.length);
+            newProgression.push(availableChords[randomIndex]);
+            if (complexity > 1) {
+                availableChords.splice(randomIndex, 1);
+                if (availableChords.length === 0) {
+                    availableChords.push(...chords[key]);
+                }
+            }
         }
         setProgression(newProgression);
     };
@@ -64,6 +73,31 @@ const ChordProgression = () => {
             Tone.Transport.stop();
             sequence.stop();
         }, `${progression.length}m`);
+    };
+
+    const exportMIDI = () => {
+        const midi = new Midi();
+        const track = midi.addTrack();
+
+        progression.forEach((chord, index) => {
+            const time = index * 2;
+            const notes = Chord.get(chord).notes.map((note) => note + '4');
+            notes.forEach((note) => {
+                track.addNote({
+                    midi: Midi.fromNote(note),
+                    time: time,
+                    duration: 2
+                });
+            });
+        });
+
+        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chord-progression.mid';
+        a.click();
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -101,9 +135,23 @@ const ChordProgression = () => {
                     max="8"
                 />
             </div>
+            <div>
+                <label htmlFor="complexity-input">Complexity: </label>
+                <input
+                    id="complexity-input"
+                    type="range"
+                    min="1"
+                    max="3"
+                    value={complexity}
+                    onChange={(e) => setComplexity(Number(e.target.value))}
+                />
+            </div>
             <button onClick={generateProgression}>Generate Progression</button>
             <button onClick={playProgression} disabled={progression.length === 0}>
                 {playing ? 'Stop' : 'Play'}
+            </button>
+            <button onClick={exportMIDI} disabled={progression.length === 0}>
+                Export MIDI
             </button>
             <div className="progression-display">
                 {progression.map((chord, index) => (

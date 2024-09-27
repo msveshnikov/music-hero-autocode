@@ -3,11 +3,9 @@
 This project aims to create a web-based platform for music composition, offering tools and resources
 for musicians and composers.
 
-![alt text](public/music.png)
+![Music Composition Site](public/music.png)
 
-# DEMO
-
-https://music-composer.netlify.app/
+[Live Demo](https://music-composer.netlify.app/)
 
 ## Features
 
@@ -35,6 +33,10 @@ https://music-composer.netlify.app/
 -   Accessibility features for users with disabilities
 -   Dark mode support for reduced eye strain during long composition sessions
 -   Offline mode capabilities for composing without an internet connection
+-   Progressive Web App (PWA) implementation for improved performance and offline access
+-   WebGL-based visualizations for enhanced user experience
+-   Integration with cloud storage services for seamless backup and sync
+-   AI-powered composition assistance using machine learning models
 
 ## Roadmap
 
@@ -47,6 +49,9 @@ https://music-composer.netlify.app/
 7. Implement offline mode and local storage
 8. Add support for custom instrument samples
 9. Develop a mobile app version for on-the-go composition
+10. Implement PWA features
+11. Integrate WebGL-based music visualizations
+12. Develop AI-powered composition assistant
 
 ## Getting Started
 
@@ -59,14 +64,16 @@ https://music-composer.netlify.app/
 ```
 music-composition-site/
 ├── package.json
+├── .prettierrc
 ├── public/
-│   └── index.html
+│   ├── index.html
+│   └── landing.html
 └── src/
     ├── components/
-    │   ├── NotationEditor/
-    │   ├── InstrumentLibrary/
-    │   ├── ChordProgression/
-    │   └── MelodySuggestion/
+    │   ├── NotationEditor.js
+    │   ├── InstrumentLibrary.js
+    │   ├── ChordProgression.js
+    │   └── MelodySuggestion.js
     ├── hooks/
     ├── contexts/
     ├── utils/
@@ -84,28 +91,31 @@ submitting pull requests.
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-# TODO
+## TODO
 
--   make nice design
--   Fix Uncaught runtime errors:
-×
-ERROR
-Invalid argument(s) to setValueAtTime: "F/4", 14.849333333333332
-    at assert (http://localhost:3000/static/js/bundle.js:79954:11)
+-   Implement responsive design for mobile devices
+-   Resolve Uncaught runtime errors in setValueAtTime function
+-   Implement error handling and logging system
+-   Optimize performance for large compositions
+-   Implement unit and integration tests
+-   Set up continuous integration and deployment pipeline
+-   Implement user authentication and profile management
+-   Develop collaborative editing features
+-   Create a plugin system for extending functionality
+-   Implement MIDI device support
+-   Develop a marketplace for user-created instruments and samples
+-   Integrate with music streaming services for inspiration and reference
 
-    
-1. Create a basic user interface for the notation editor (5 story points)
-   - Implement a staff with clickable note positions
-   - Add functionality to input and delete notes
+## Upcoming Features
 
-2. Implement note rendering in the notation editor (3 story points)
-   - Render notes on the staff based on user input
-   - Ensure proper spacing and alignment of notes
+1. Advanced time signature support
+2. Microtonal tuning options
+3. Integration with music notation OCR for importing sheet music
+4. Virtual reality composition environment
+5. Machine learning-based style transfer for compositions
+6. Blockchain integration for copyright protection and royalty management
+7. Social features for sharing and discovering compositions
+8. Integration with digital audio workstations (DAWs) for advanced editing
+9. Support for non-Western music scales and notation systems
+10. Haptic feedback for mobile devices during composition
 
-3. Integrate Web Audio API for real-time playback (5 story points)
-   - Set up audio context and basic sound generation
-   - Implement play/pause functionality for the composed melody
-
-4. Create a basic virtual instrument library (3 story points)
-   - Implement 3-5 basic instruments (e.g., piano, guitar, flute)
-   - Create a simple interface for instrument selection

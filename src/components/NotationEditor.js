@@ -7,6 +7,8 @@ const NotationEditor = () => {
     const [currentOctave, setCurrentOctave] = useState(4);
     const [currentDuration, setCurrentDuration] = useState('q');
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const [timeSignature, setTimeSignature] = useState('4/4');
+    const [bpm, setBpm] = useState(120);
     const rendererRef = useRef(null);
     const contextRef = useRef(null);
     const staveRef = useRef(null);
@@ -17,7 +19,7 @@ const NotationEditor = () => {
         renderer.resize(800, 200);
         const context = renderer.getContext();
         const stave = new Vex.Flow.Stave(10, 40, 780);
-        stave.addClef('treble').addTimeSignature('4/4');
+        stave.addClef('treble').addTimeSignature(timeSignature);
         stave.setContext(context).draw();
 
         rendererRef.current = renderer;
@@ -27,7 +29,7 @@ const NotationEditor = () => {
         return () => {
             div.innerHTML = '';
         };
-    }, []);
+    }, [timeSignature]);
 
     useEffect(() => {
         if (contextRef.current && staveRef.current) {
@@ -107,6 +109,15 @@ const NotationEditor = () => {
         anchor.click();
     };
 
+    const handleTimeSignatureChange = (event) => {
+        setTimeSignature(event.target.value);
+    };
+
+    const handleBpmChange = (event) => {
+        setBpm(parseInt(event.target.value));
+        Tone.Transport.bpm.value = parseInt(event.target.value);
+    };
+
     return (
         <div className={`notation-editor ${isDarkMode ? 'dark-mode' : ''}`}>
             <h2>Notation Editor</h2>
@@ -138,6 +149,24 @@ const NotationEditor = () => {
                         <option value="8">Eighth</option>
                         <option value="16">Sixteenth</option>
                     </select>
+                </label>
+                <label>
+                    Time Signature:
+                    <select value={timeSignature} onChange={handleTimeSignatureChange}>
+                        <option value="4/4">4/4</option>
+                        <option value="3/4">3/4</option>
+                        <option value="6/8">6/8</option>
+                    </select>
+                </label>
+                <label>
+                    BPM:
+                    <input
+                        type="number"
+                        value={bpm}
+                        onChange={handleBpmChange}
+                        min="40"
+                        max="240"
+                    />
                 </label>
             </div>
             <div className="action-buttons">
