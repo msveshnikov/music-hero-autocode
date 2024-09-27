@@ -100,7 +100,6 @@ const ChordProgression = () => {
         URL.revokeObjectURL(url);
     }, [progression]);
 
-  
     return (
         <div className={`chord-progression`}>
             <h2>Chord Progression Generator</h2>
@@ -154,7 +153,7 @@ const ChordProgression = () => {
             <button onClick={exportMIDI} disabled={progression.length === 0}>
                 Export MIDI
             </button>
-            
+
             <div className="progression-display">
                 {progression.map((chord, index) => (
                     <span key={index} className="chord">

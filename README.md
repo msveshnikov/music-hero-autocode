@@ -75,10 +75,6 @@ music-composition-site/
     │   ├── InstrumentLibrary.js
     │   ├── ChordProgression.js
     │   └── MelodySuggestion.js
-    ├── hooks/
-    ├── contexts/
-    ├── utils/
-    ├── styles/
     ├── App.js
     └── index.js
 ```

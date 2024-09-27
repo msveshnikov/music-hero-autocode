@@ -20,8 +20,6 @@ const InstrumentLibrary = () => {
         setSelectedInstrument(initialInstruments[0]);
     }, []);
 
- 
-
     const handleInstrumentSelect = useCallback((instrument) => {
         setSelectedInstrument(instrument);
     }, []);
@@ -106,8 +104,6 @@ const InstrumentLibrary = () => {
         a.click();
         URL.revokeObjectURL(url);
     }, []);
-
- 
 
     return (
         <div className={`instrument-library `}>

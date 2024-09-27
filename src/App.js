@@ -7,15 +7,15 @@ import {
     HStack,
     Heading,
     Button,
-    useColorMode
+    useColorMode,
+    useColorModeValue
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import NotationEditor from './components/NotationEditor';
 import InstrumentLibrary from './components/InstrumentLibrary';
 import ChordProgression from './components/ChordProgression';
 import MelodySuggestion from './components/MelodySuggestion';
-
-const CollaborationSpace = () => <Box>Real-time collaboration for ensemble compositions</Box>;
+import CollaborationSpace from './components/CollaborationSpace';
 
 const AudioPlayback = () => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -54,8 +54,12 @@ const ExportFunctionality = () => {
 
     return <Button onClick={exportAudio}>Export Audio</Button>;
 };
+
 function App() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
+    const { colorMode, toggleColorMode } = useColorMode();
+    const bgColor = useColorModeValue('gray.100', 'gray.900');
+    const textColor = useColorModeValue('gray.900', 'gray.100');
 
     useEffect(() => {
         Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
@@ -75,11 +79,11 @@ function App() {
     return (
         <ChakraProvider>
             <Router>
-                <Box>
+                <Box bg={bgColor} color={textColor} minHeight="100vh">
                     <VStack spacing={4} align="stretch">
-                        <Box as="header" p={4} bg="gray.100">
+                        <Box as="header" p={4} bg={bgColor}>
                             <Heading as="h1" size="xl">
-                                Music Composition Site
+                                Music Hero
                             </Heading>
                             <HStack as="nav" spacing={4} mt={4}>
                                 <Link to="/">Home</Link>
@@ -88,17 +92,20 @@ function App() {
                                 <Link to="/chord-progression">Chord Progression</Link>
                                 <Link to="/melody-suggestion">Melody Suggestion</Link>
                                 <Link to="/collaboration">Collaboration</Link>
+                                <Button onClick={toggleColorMode}>
+                                    Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
+                                </Button>
                             </HStack>
                             {isOffline && <Box>Offline Mode</Box>}
                         </Box>
 
-                        <Box as="main" p={4}>
+                        <Box as="main" p={4} flex={1}>
                             <Routes>
                                 <Route
                                     path="/"
                                     element={
                                         <Heading as="h2" size="lg">
-                                            Welcome to Music Composition Site
+                                            Welcome to Music Hero
                                         </Heading>
                                     }
                                 />
@@ -110,7 +117,7 @@ function App() {
                             </Routes>
                         </Box>
 
-                        <Box as="footer" p={4} bg="gray.100">
+                        <Box as="footer" p={4} bg={bgColor}>
                             <HStack spacing={4}>
                                 <AudioPlayback />
                                 <ExportFunctionality />
