@@ -7,7 +7,6 @@ import {
     HStack,
     Heading,
     Button,
-    useColorMode,
     useColorModeValue,
     Container,
     Text,
@@ -72,7 +71,6 @@ const ExportFunctionality = () => {
 
 function App() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
-    const { colorMode, toggleColorMode } = useColorMode();
     const bgColor = useColorModeValue('gray.100', 'gray.900');
     const textColor = useColorModeValue('gray.900', 'gray.100');
 
@@ -103,9 +101,6 @@ function App() {
                                         Music Hero
                                     </Heading>
                                     <Spacer />
-                                    <Button onClick={toggleColorMode} size="sm">
-                                        Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
-                                    </Button>
                                 </Flex>
                                 <HStack as="nav" spacing={4} mt={4} overflowX="auto" py={2}>
                                     <Link to="/">Notation Editor</Link>

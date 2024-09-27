@@ -9,6 +9,7 @@
         "@tonejs/midi": "^2.0.28",
         "framer-motion": "^11.0.3",
         "react": "^18.2.0",
+        "@google/generative-ai": "^0.17.1",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.21.3",
         "react-scripts": "5.0.1",
@@ -42,6 +43,6 @@
     "devDependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
         "eslint": "^8.56.0",
-        "prettier": "^2.9.5"
+        "prettier": "^2.8.8"
     }
 }

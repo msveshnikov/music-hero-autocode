@@ -1,7 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
-import { Box, Heading, Select, Slider, Button, VStack, HStack, Text, Switch, List, ListItem } from '@chakra-ui/react';
+import {
+    Box,
+    Heading,
+    Select,
+    Slider,
+    Button,
+    VStack,
+    HStack,
+    Text,
+    Switch,
+    List,
+    ListItem,
+    useToast
+} from '@chakra-ui/react';
+import useAIIntegration from '../hooks/useAIIntegration';
 
 const MelodySuggestion = () => {
     const [scale, setScale] = useState('C major');
@@ -12,6 +26,8 @@ const MelodySuggestion = () => {
     const [complexity, setComplexity] = useState(1);
     const [synth, setSynth] = useState(null);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const toast = useToast();
+    const { sendMessage, isLoading } = useAIIntegration();
 
     const scales = {
         'C major': ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
@@ -32,34 +48,36 @@ const MelodySuggestion = () => {
         };
     }, []);
 
-    const generateMelody = useCallback(() => {
+    const generateMelody = useCallback(async () => {
         const currentScale = scales[scale];
-        const newMelody = [];
+        let newMelody = [];
         const melodyLength = 8 + complexity * 2;
 
-        for (let i = 0; i < melodyLength; i++) {
-            const randomIndex = Math.floor(Math.random() * currentScale.length);
-            newMelody.push(currentScale[randomIndex]);
-        }
-
-        if (complexity > 1) {
-            for (let i = 0; i < complexity - 1; i++) {
-                const insertIndex = Math.floor(Math.random() * newMelody.length);
-                const randomNote = currentScale[Math.floor(Math.random() * currentScale.length)];
-                newMelody.splice(insertIndex, 0, randomNote);
+        if (aiAssistance) {
+            const prompt = `Generate a melody in the ${scale} scale with ${melodyLength} notes. Consider the complexity level of ${complexity} (1-5) where higher complexity means more varied note choices and rhythms. Return the melody as a comma-separated list of note names (e.g., C4,D4,E4).`;
+            const aiResponse = await sendMessage(prompt, 'English');
+            if (aiResponse) {
+                newMelody = aiResponse.split(',').map((note) => note.trim());
+            } else {
+                toast({
+                    title: 'AI Generation Failed',
+                    description: 'Falling back to random generation',
+                    status: 'warning',
+                    duration: 3000,
+                    isClosable: true
+                });
             }
         }
 
-        if (aiAssistance) {
-            newMelody.sort((a, b) => {
-                const aIndex = currentScale.indexOf(a);
-                const bIndex = currentScale.indexOf(b);
-                return aIndex - bIndex;
-            });
+        if (newMelody.length !== melodyLength) {
+            newMelody = Array(melodyLength)
+                .fill()
+                .map(() => currentScale[Math.floor(Math.random() * currentScale.length)]);
         }
 
         setMelody(newMelody);
-    }, [scale, complexity, aiAssistance]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scale, complexity, aiAssistance, sendMessage, toast]);
 
     const playMelody = useCallback(async () => {
         await Tone.start();
@@ -154,7 +172,9 @@ const MelodySuggestion = () => {
                     />
                 </HStack>
                 <HStack spacing={4}>
-                    <Button onClick={generateMelody}>Generate Melody</Button>
+                    <Button onClick={generateMelody} isLoading={isLoading}>
+                        Generate Melody
+                    </Button>
                     <Button onClick={playMelody} isDisabled={isPlaying || melody.length === 0}>
                         {isPlaying ? 'Playing...' : 'Play Melody'}
                     </Button>

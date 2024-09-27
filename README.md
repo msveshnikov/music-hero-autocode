@@ -89,4 +89,4 @@ This project is licensed under the MIT License. See the LICENSE file for details
 
 ## TODO
 
--   Fix UI add paddings make design cool
+-   AI assisted music composing

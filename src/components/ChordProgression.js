@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi, Chord } from '@tonejs/midi';
-import { Box, Heading, Select, Input, Button, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from '@chakra-ui/react';
+import {
+    Box,
+    Heading,
+    Select,
+    Input,
+    Button,
+    VStack,
+    HStack,
+    Text,
+    Slider,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb
+} from '@chakra-ui/react';
 
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
