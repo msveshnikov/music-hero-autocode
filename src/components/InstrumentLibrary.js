@@ -5,7 +5,7 @@ const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [customSamples, setCustomSamples] = useState({});
+    const [, setCustomSamples] = useState({});
 
     useEffect(() => {
         const initialInstruments = [
@@ -19,6 +19,8 @@ const InstrumentLibrary = () => {
         setInstruments(initialInstruments);
         setSelectedInstrument(initialInstruments[0]);
     }, []);
+
+ 
 
     const handleInstrumentSelect = useCallback((instrument) => {
         setSelectedInstrument(instrument);
@@ -84,8 +86,31 @@ const InstrumentLibrary = () => {
         reader.readAsArrayBuffer(file);
     }, []);
 
+    const exportMIDI = useCallback(() => {
+        const midi = new Tone.Midi();
+        const track = midi.addTrack();
+
+        ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].forEach((note, index) => {
+            track.addNote({
+                midi: Tone.Midi.fromNote(note),
+                time: index * 0.5,
+                duration: 0.5
+            });
+        });
+
+        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'instrument-sample.mid';
+        a.click();
+        URL.revokeObjectURL(url);
+    }, []);
+
+ 
+
     return (
-        <div className="instrument-library">
+        <div className={`instrument-library `}>
             <h2>Virtual Instrument Library</h2>
             <div className="instrument-list">
                 {instruments.map((instrument) => (
@@ -122,6 +147,7 @@ const InstrumentLibrary = () => {
                 <h3>Upload Custom Sample</h3>
                 <input type="file" accept="audio/*" onChange={handleCustomSampleUpload} />
             </div>
+            <button onClick={exportMIDI}>Export MIDI</button>
         </div>
     );
 };

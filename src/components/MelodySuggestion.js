@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
+import { Midi } from '@tonejs/midi';
 
 const MelodySuggestion = () => {
     const [scale, setScale] = useState('C major');
@@ -9,6 +10,7 @@ const MelodySuggestion = () => {
     const [noteLength, setNoteLength] = useState('8n');
     const [complexity, setComplexity] = useState(1);
     const [synth, setSynth] = useState(null);
+    const [aiAssistance, setAiAssistance] = useState(false);
 
     const scales = {
         'C major': ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
@@ -29,7 +31,7 @@ const MelodySuggestion = () => {
         };
     }, []);
 
-    const generateMelody = () => {
+    const generateMelody = useCallback(() => {
         const currentScale = scales[scale];
         const newMelody = [];
         const melodyLength = 8 + complexity * 2;
@@ -47,10 +49,19 @@ const MelodySuggestion = () => {
             }
         }
 
-        setMelody(newMelody);
-    };
+        if (aiAssistance) {
+            newMelody.sort((a, b) => {
+                const aIndex = currentScale.indexOf(a);
+                const bIndex = currentScale.indexOf(b);
+                return aIndex - bIndex;
+            });
+        }
 
-    const playMelody = async () => {
+        setMelody(newMelody);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [scale, complexity, aiAssistance]);
+
+    const playMelody = useCallback(async () => {
         await Tone.start();
         setIsPlaying(true);
         const now = Tone.now();
@@ -62,94 +73,28 @@ const MelodySuggestion = () => {
         });
 
         setTimeout(() => setIsPlaying(false), melody.length * interval * 1000);
-    };
+    }, [melody, noteLength, tempo, synth]);
 
-    const exportMelody = () => {
-        const midiNotes = melody.map((note) => {
-            const [noteName, octave] = note.split(/(\d+)/);
-            const noteIndex = [
-                'C',
-                'C#',
-                'D',
-                'D#',
-                'E',
-                'F',
-                'F#',
-                'G',
-                'G#',
-                'A',
-                'A#',
-                'B'
-            ].indexOf(noteName);
-            return noteIndex + (parseInt(octave) + 1) * 12;
+    const exportMIDI = useCallback(() => {
+        const midi = new Midi();
+        const track = midi.addTrack();
+
+        melody.forEach((note, index) => {
+            track.addNote({
+                midi: Tone.Frequency(note).toMidi(),
+                time: index * Tone.Time(noteLength).toSeconds(),
+                duration: Tone.Time(noteLength).toSeconds()
+            });
         });
 
-        const midiData = [
-            0x4d,
-            0x54,
-            0x68,
-            0x64,
-            0x00,
-            0x00,
-            0x00,
-            0x06,
-            0x00,
-            0x00,
-            0x00,
-            0x01,
-            0x00,
-            0x60,
-            0x4d,
-            0x54,
-            0x72,
-            0x6b,
-            0x00,
-            0x00,
-            0x00,
-            0x3b,
-            0x00,
-            0xff,
-            0x58,
-            0x04,
-            0x04,
-            0x02,
-            0x18,
-            0x08,
-            0x00,
-            0xff,
-            0x51,
-            0x03,
-            0x07,
-            0xa1,
-            0x20,
-            0x00,
-            0xc0,
-            0x00,
-            ...midiNotes.flatMap((note, index) => [
-                0x00,
-                0x90,
-                note,
-                0x64,
-                0x83,
-                0x60,
-                0x80,
-                note,
-                0x00
-            ]),
-            0x00,
-            0xff,
-            0x2f,
-            0x00
-        ];
-
-        const blob = new Blob([new Uint8Array(midiData)], { type: 'audio/midi' });
+        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = 'melody.mid';
         a.click();
         URL.revokeObjectURL(url);
-    };
+    }, [melody, noteLength]);
 
     return (
         <div className="melody-suggestion">
@@ -193,13 +138,22 @@ const MelodySuggestion = () => {
                     value={complexity}
                     onChange={(e) => setComplexity(parseInt(e.target.value))}
                 />
+                <label htmlFor="ai-assistance">
+                    AI Assistance:
+                    <input
+                        id="ai-assistance"
+                        type="checkbox"
+                        checked={aiAssistance}
+                        onChange={(e) => setAiAssistance(e.target.checked)}
+                    />
+                </label>
             </div>
             <div className="actions">
                 <button onClick={generateMelody}>Generate Melody</button>
                 <button onClick={playMelody} disabled={isPlaying || melody.length === 0}>
                     {isPlaying ? 'Playing...' : 'Play Melody'}
                 </button>
-                <button onClick={exportMelody} disabled={melody.length === 0}>
+                <button onClick={exportMIDI} disabled={melody.length === 0}>
                     Export MIDI
                 </button>
             </div>

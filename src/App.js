@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import {
+    ChakraProvider,
+    Box,
+    VStack,
+    HStack,
+    Heading,
+    Button,
+    useColorMode
+} from '@chakra-ui/react';
 import * as Tone from 'tone';
 import NotationEditor from './components/NotationEditor';
 import InstrumentLibrary from './components/InstrumentLibrary';
 import ChordProgression from './components/ChordProgression';
 import MelodySuggestion from './components/MelodySuggestion';
 
-const CollaborationSpace = () => <div>Real-time collaboration for ensemble compositions</div>;
+const CollaborationSpace = () => <Box>Real-time collaboration for ensemble compositions</Box>;
 
 const AudioPlayback = () => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -21,7 +30,7 @@ const AudioPlayback = () => {
         setIsPlaying(!isPlaying);
     };
 
-    return <button onClick={togglePlayback}>{isPlaying ? 'Stop' : 'Play'}</button>;
+    return <Button onClick={togglePlayback}>{isPlaying ? 'Stop' : 'Play'}</Button>;
 };
 
 const ExportFunctionality = () => {
@@ -43,15 +52,9 @@ const ExportFunctionality = () => {
         anchor.click();
     };
 
-    return <button onClick={exportAudio}>Export Audio</button>;
+    return <Button onClick={exportAudio}>Export Audio</Button>;
 };
-
-const DarkModeToggle = ({ darkMode, toggleDarkMode }) => (
-    <button onClick={toggleDarkMode}>{darkMode ? 'Light Mode' : 'Dark Mode'}</button>
-);
-
 function App() {
-    const [darkMode, setDarkMode] = useState(false);
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
     useEffect(() => {
@@ -69,59 +72,54 @@ function App() {
         };
     }, []);
 
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        document.body.classList.toggle('dark-mode');
-    };
-
     return (
-        <Router>
-            <div className={`App ${darkMode ? 'dark-mode' : ''}`}>
-                <header>
-                    <h1>Music Composition Site</h1>
-                    <nav>
-                        <ul>
-                            <li>
+        <ChakraProvider>
+            <Router>
+                <Box>
+                    <VStack spacing={4} align="stretch">
+                        <Box as="header" p={4} bg="gray.100">
+                            <Heading as="h1" size="xl">
+                                Music Composition Site
+                            </Heading>
+                            <HStack as="nav" spacing={4} mt={4}>
                                 <Link to="/">Home</Link>
-                            </li>
-                            <li>
                                 <Link to="/editor">Notation Editor</Link>
-                            </li>
-                            <li>
                                 <Link to="/instruments">Instrument Library</Link>
-                            </li>
-                            <li>
                                 <Link to="/chord-progression">Chord Progression</Link>
-                            </li>
-                            <li>
                                 <Link to="/melody-suggestion">Melody Suggestion</Link>
-                            </li>
-                            <li>
                                 <Link to="/collaboration">Collaboration</Link>
-                            </li>
-                        </ul>
-                    </nav>
-                    <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-                    {isOffline && <div>Offline Mode</div>}
-                </header>
+                            </HStack>
+                            {isOffline && <Box>Offline Mode</Box>}
+                        </Box>
 
-                <main>
-                    <Routes>
-                        <Route path="/" element={<h2>Welcome to Music Composition Site</h2>} />
-                        <Route path="/editor" element={<NotationEditor />} />
-                        <Route path="/instruments" element={<InstrumentLibrary />} />
-                        <Route path="/chord-progression" element={<ChordProgression />} />
-                        <Route path="/melody-suggestion" element={<MelodySuggestion />} />
-                        <Route path="/collaboration" element={<CollaborationSpace />} />
-                    </Routes>
-                </main>
+                        <Box as="main" p={4}>
+                            <Routes>
+                                <Route
+                                    path="/"
+                                    element={
+                                        <Heading as="h2" size="lg">
+                                            Welcome to Music Composition Site
+                                        </Heading>
+                                    }
+                                />
+                                <Route path="/editor" element={<NotationEditor />} />
+                                <Route path="/instruments" element={<InstrumentLibrary />} />
+                                <Route path="/chord-progression" element={<ChordProgression />} />
+                                <Route path="/melody-suggestion" element={<MelodySuggestion />} />
+                                <Route path="/collaboration" element={<CollaborationSpace />} />
+                            </Routes>
+                        </Box>
 
-                <footer>
-                    <AudioPlayback />
-                    <ExportFunctionality />
-                </footer>
-            </div>
-        </Router>
+                        <Box as="footer" p={4} bg="gray.100">
+                            <HStack spacing={4}>
+                                <AudioPlayback />
+                                <ExportFunctionality />
+                            </HStack>
+                        </Box>
+                    </VStack>
+                </Box>
+            </Router>
+        </ChakraProvider>
     );
 }
 

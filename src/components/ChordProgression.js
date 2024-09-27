@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi, Chord } from '@tonejs/midi';
 
@@ -29,7 +29,7 @@ const ChordProgression = () => {
         };
     }, []);
 
-    const generateProgression = () => {
+    const generateProgression = useCallback(() => {
         const newProgression = [];
         const availableChords = [...chords[key]];
         for (let i = 0; i < progressionLength; i++) {
@@ -43,9 +43,9 @@ const ChordProgression = () => {
             }
         }
         setProgression(newProgression);
-    };
+    }, [key, progressionLength, complexity]);
 
-    const playProgression = async () => {
+    const playProgression = useCallback(async () => {
         if (playing) {
             Tone.Transport.stop();
             setPlaying(false);
@@ -73,9 +73,9 @@ const ChordProgression = () => {
             Tone.Transport.stop();
             sequence.stop();
         }, `${progression.length}m`);
-    };
+    }, [playing, tempo, progression, synth]);
 
-    const exportMIDI = () => {
+    const exportMIDI = useCallback(() => {
         const midi = new Midi();
         const track = midi.addTrack();
 
@@ -98,10 +98,11 @@ const ChordProgression = () => {
         a.download = 'chord-progression.mid';
         a.click();
         URL.revokeObjectURL(url);
-    };
+    }, [progression]);
 
+  
     return (
-        <div className="chord-progression">
+        <div className={`chord-progression`}>
             <h2>Chord Progression Generator</h2>
             <div>
                 <label htmlFor="key-select">Key: </label>
@@ -153,6 +154,7 @@ const ChordProgression = () => {
             <button onClick={exportMIDI} disabled={progression.length === 0}>
                 Export MIDI
             </button>
+            
             <div className="progression-display">
                 {progression.map((chord, index) => (
                     <span key={index} className="chord">

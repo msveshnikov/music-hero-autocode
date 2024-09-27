@@ -1,4 +1,4 @@
-# Music Composition Site (built by [AutoCode](https://autocode.work) in 20 minutes)
+# Music Hero (built by [AutoCode](https://autocode.work) in 20 minutes)
 
 This project aims to create a web-based platform for music composition, offering tools and resources
 for musicians and composers.
@@ -19,6 +19,7 @@ for musicians and composers.
 ## Technology Stack
 
 -   React.js for front-end development
+-   Chakra UI and nice design
 -   Web Audio API for sound generation and processing
 -   Tone.js for advanced audio synthesis and effects
 -   react-router-dom v6
@@ -96,26 +97,5 @@ This project is licensed under the MIT License. See the LICENSE file for details
 -   Implement responsive design for mobile devices
 -   Resolve Uncaught runtime errors in setValueAtTime function
 -   Implement error handling and logging system
--   Optimize performance for large compositions
--   Implement unit and integration tests
 -   Set up continuous integration and deployment pipeline
--   Implement user authentication and profile management
--   Develop collaborative editing features
--   Create a plugin system for extending functionality
 -   Implement MIDI device support
--   Develop a marketplace for user-created instruments and samples
--   Integrate with music streaming services for inspiration and reference
-
-## Upcoming Features
-
-1. Advanced time signature support
-2. Microtonal tuning options
-3. Integration with music notation OCR for importing sheet music
-4. Virtual reality composition environment
-5. Machine learning-based style transfer for compositions
-6. Blockchain integration for copyright protection and royalty management
-7. Social features for sharing and discovering compositions
-8. Integration with digital audio workstations (DAWs) for advanced editing
-9. Support for non-Western music scales and notation systems
-10. Haptic feedback for mobile devices during composition
-

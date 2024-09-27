@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Vex } from 'vexflow';
+import { Midi } from '@tonejs/midi';
 
 const NotationEditor = () => {
     const [notes, setNotes] = useState([]);
@@ -9,9 +10,11 @@ const NotationEditor = () => {
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [timeSignature, setTimeSignature] = useState('4/4');
     const [bpm, setBpm] = useState(120);
+    const [isPlaying, setIsPlaying] = useState(false);
     const rendererRef = useRef(null);
     const contextRef = useRef(null);
     const staveRef = useRef(null);
+    const synthRef = useRef(null);
 
     useEffect(() => {
         const div = document.getElementById('notation');
@@ -26,8 +29,11 @@ const NotationEditor = () => {
         contextRef.current = context;
         staveRef.current = stave;
 
+        synthRef.current = new Tone.Synth().toDestination();
+
         return () => {
             div.innerHTML = '';
+            synthRef.current.dispose();
         };
     }, [timeSignature]);
 
@@ -50,73 +56,93 @@ const NotationEditor = () => {
         document.body.classList.toggle('dark-mode', isDarkMode);
     }, [isDarkMode]);
 
-    const addNote = (noteName) => {
-        const newNote = { pitch: `${noteName}/${currentOctave}`, duration: currentDuration };
-        setNotes([...notes, newNote]);
-    };
+    const addNote = useCallback(
+        (noteName) => {
+            const newNote = { pitch: `${noteName}/${currentOctave}`, duration: currentDuration };
+            setNotes((prevNotes) => [...prevNotes, newNote]);
+        },
+        [currentOctave, currentDuration]
+    );
 
-    const playNotes = async () => {
+    const playNotes = useCallback(async () => {
+        if (isPlaying) {
+            Tone.Transport.stop();
+            setIsPlaying(false);
+            return;
+        }
+
         await Tone.start();
-        const synth = new Tone.Synth().toDestination();
-        const now = Tone.now();
-        notes.forEach((note, index) => {
-            synth.triggerAttackRelease(
-                note.pitch,
-                Tone.Time(note.duration).toSeconds(),
-                now + index * 0.5
-            );
-        });
-    };
+        Tone.Transport.bpm.value = bpm;
 
-    const clearNotes = () => {
+        const sequence = new Tone.Sequence(
+            (time, note) => {
+                synthRef.current.triggerAttackRelease(
+                    note.pitch,
+                    Tone.Time(note.duration).toSeconds(),
+                    time
+                );
+            },
+            notes,
+            '4n'
+        );
+
+        sequence.start(0);
+        Tone.Transport.start();
+        setIsPlaying(true);
+
+        Tone.Transport.scheduleOnce(() => {
+            setIsPlaying(false);
+            Tone.Transport.stop();
+            sequence.stop();
+        }, `${notes.length}m`);
+    }, [notes, bpm, isPlaying]);
+
+    const clearNotes = useCallback(() => {
         setNotes([]);
-    };
+    }, []);
 
-    const handleOctaveChange = (event) => {
+    const handleOctaveChange = useCallback((event) => {
         setCurrentOctave(parseInt(event.target.value));
-    };
+    }, []);
 
-    const handleDurationChange = (event) => {
+    const handleDurationChange = useCallback((event) => {
         setCurrentDuration(event.target.value);
-    };
+    }, []);
 
-    const toggleDarkMode = () => {
-        setIsDarkMode(!isDarkMode);
-    };
+    const toggleDarkMode = useCallback(() => {
+        setIsDarkMode((prevMode) => !prevMode);
+    }, []);
 
-    const exportAudio = async () => {
-        const recorder = new Tone.Recorder();
-        const synth = new Tone.Synth().connect(recorder);
+    const exportMIDI = useCallback(() => {
+        const midi = new Midi();
+        const track = midi.addTrack();
 
-        await recorder.start();
-
-        const now = Tone.now();
         notes.forEach((note, index) => {
-            synth.triggerAttackRelease(
-                note.pitch,
-                Tone.Time(note.duration).toSeconds(),
-                now + index * 0.5
-            );
+            const time = index * Tone.Time(note.duration).toSeconds();
+            track.addNote({
+                midi: Tone.Frequency(note.pitch).toMidi(),
+                time: time,
+                duration: Tone.Time(note.duration).toSeconds()
+            });
         });
 
-        await Tone.getTransport().sleep(notes.length * 0.5 + 1);
+        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'notation.mid';
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [notes]);
 
-        const recording = await recorder.stop();
-        const url = URL.createObjectURL(recording);
-        const anchor = document.createElement('a');
-        anchor.download = 'composition.webm';
-        anchor.href = url;
-        anchor.click();
-    };
-
-    const handleTimeSignatureChange = (event) => {
+    const handleTimeSignatureChange = useCallback((event) => {
         setTimeSignature(event.target.value);
-    };
+    }, []);
 
-    const handleBpmChange = (event) => {
+    const handleBpmChange = useCallback((event) => {
         setBpm(parseInt(event.target.value));
         Tone.Transport.bpm.value = parseInt(event.target.value);
-    };
+    }, []);
 
     return (
         <div className={`notation-editor ${isDarkMode ? 'dark-mode' : ''}`}>
@@ -170,9 +196,9 @@ const NotationEditor = () => {
                 </label>
             </div>
             <div className="action-buttons">
-                <button onClick={playNotes}>Play Notes</button>
+                <button onClick={playNotes}>{isPlaying ? 'Stop' : 'Play Notes'}</button>
                 <button onClick={clearNotes}>Clear Notes</button>
-                <button onClick={exportAudio}>Export Audio</button>
+                <button onClick={exportMIDI}>Export MIDI</button>
                 <button onClick={toggleDarkMode}>Toggle Dark Mode</button>
             </div>
         </div>

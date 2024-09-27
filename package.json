@@ -3,10 +3,14 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@chakra-ui/react": "^2.8.2",
+        "@emotion/react": "^11.11.3",
+        "@emotion/styled": "^11.11.0",
         "@tonejs/midi": "^2.0.28",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
-        "react-router-dom": "^6.26.2",
+        "framer-motion": "^11.0.3",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.21.3",
         "react-scripts": "5.0.1",
         "tone": "^15.0.4",
         "vexflow": "^4.2.5"
@@ -37,7 +41,7 @@
     },
     "devDependencies": {
         "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+        "eslint": "^8.56.0",
         "prettier": "^3.2.5"
-    },
-    "license": "MIT"
+    }
 }
