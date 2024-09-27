@@ -13,7 +13,7 @@ import {
     Text,
     Flex,
     Spacer,
-    useToast,
+    useToast
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import NotationEditor from './components/NotationEditor';
@@ -63,7 +63,7 @@ const ExportFunctionality = () => {
             description: 'Your composition has been exported successfully.',
             status: 'success',
             duration: 3000,
-            isClosable: true,
+            isClosable: true
         });
     };
 
@@ -108,8 +108,7 @@ function App() {
                                     </Button>
                                 </Flex>
                                 <HStack as="nav" spacing={4} mt={4} overflowX="auto" py={2}>
-                                    <Link to="/">Home</Link>
-                                    <Link to="/editor">Notation Editor</Link>
+                                    <Link to="/">Notation Editor</Link>
                                     <Link to="/instruments">Instrument Library</Link>
                                     <Link to="/chord-progression">Chord Progression</Link>
                                     <Link to="/melody-suggestion">Melody Suggestion</Link>
@@ -124,24 +123,16 @@ function App() {
 
                             <Box as="main" flex={1} py={4}>
                                 <Routes>
-                                    <Route
-                                        path="/"
-                                        element={
-                                            <VStack spacing={4} align="start">
-                                                <Heading as="h2" size="lg">
-                                                    Welcome to Music Hero
-                                                </Heading>
-                                                <Text>
-                                                    Start composing your next masterpiece with our
-                                                    advanced tools and features.
-                                                </Text>
-                                            </VStack>
-                                        }
-                                    />
-                                    <Route path="/editor" element={<NotationEditor />} />
+                                    <Route path="/" element={<NotationEditor />} />
                                     <Route path="/instruments" element={<InstrumentLibrary />} />
-                                    <Route path="/chord-progression" element={<ChordProgression />} />
-                                    <Route path="/melody-suggestion" element={<MelodySuggestion />} />
+                                    <Route
+                                        path="/chord-progression"
+                                        element={<ChordProgression />}
+                                    />
+                                    <Route
+                                        path="/melody-suggestion"
+                                        element={<MelodySuggestion />}
+                                    />
                                     <Route path="/collaboration" element={<CollaborationSpace />} />
                                 </Routes>
                             </Box>

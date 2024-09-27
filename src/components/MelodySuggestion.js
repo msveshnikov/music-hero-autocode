@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
+import { Box, Heading, Select, Slider, Button, VStack, HStack, Text, Switch, List, ListItem } from '@chakra-ui/react';
 
 const MelodySuggestion = () => {
     const [scale, setScale] = useState('C major');
@@ -58,7 +59,6 @@ const MelodySuggestion = () => {
         }
 
         setMelody(newMelody);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scale, complexity, aiAssistance]);
 
     const playMelody = useCallback(async () => {
@@ -97,75 +97,83 @@ const MelodySuggestion = () => {
     }, [melody, noteLength]);
 
     return (
-        <div className="melody-suggestion">
-            <h2>Melody Suggestion Tool</h2>
-            <div className="controls">
-                <label htmlFor="scale-select">Choose a scale: </label>
-                <select id="scale-select" value={scale} onChange={(e) => setScale(e.target.value)}>
-                    {Object.keys(scales).map((scaleName) => (
-                        <option key={scaleName} value={scaleName}>
-                            {scaleName}
-                        </option>
-                    ))}
-                </select>
-                <label htmlFor="tempo-input">Tempo (BPM): </label>
-                <input
-                    id="tempo-input"
-                    type="number"
-                    value={tempo}
-                    onChange={(e) => setTempo(parseInt(e.target.value))}
-                    min="40"
-                    max="240"
-                />
-                <label htmlFor="note-length-select">Note Length: </label>
-                <select
-                    id="note-length-select"
-                    value={noteLength}
-                    onChange={(e) => setNoteLength(e.target.value)}
-                >
-                    {noteLengths.map((length) => (
-                        <option key={length} value={length}>
-                            {length}
-                        </option>
-                    ))}
-                </select>
-                <label htmlFor="complexity-input">Complexity: </label>
-                <input
-                    id="complexity-input"
-                    type="range"
-                    min="1"
-                    max="5"
-                    value={complexity}
-                    onChange={(e) => setComplexity(parseInt(e.target.value))}
-                />
-                <label htmlFor="ai-assistance">
-                    AI Assistance:
-                    <input
-                        id="ai-assistance"
-                        type="checkbox"
-                        checked={aiAssistance}
+        <Box className="melody-suggestion">
+            <Heading as="h2" size="lg" mb={4}>
+                Melody Suggestion Tool
+            </Heading>
+            <VStack spacing={4} align="stretch">
+                <HStack>
+                    <Text>Choose a scale:</Text>
+                    <Select value={scale} onChange={(e) => setScale(e.target.value)}>
+                        {Object.keys(scales).map((scaleName) => (
+                            <option key={scaleName} value={scaleName}>
+                                {scaleName}
+                            </option>
+                        ))}
+                    </Select>
+                </HStack>
+                <HStack>
+                    <Text>Tempo (BPM):</Text>
+                    <Slider
+                        value={tempo}
+                        onChange={(value) => setTempo(value)}
+                        min={40}
+                        max={240}
+                        step={1}
+                    >
+                        <Text>{tempo}</Text>
+                    </Slider>
+                </HStack>
+                <HStack>
+                    <Text>Note Length:</Text>
+                    <Select value={noteLength} onChange={(e) => setNoteLength(e.target.value)}>
+                        {noteLengths.map((length) => (
+                            <option key={length} value={length}>
+                                {length}
+                            </option>
+                        ))}
+                    </Select>
+                </HStack>
+                <HStack>
+                    <Text>Complexity:</Text>
+                    <Slider
+                        value={complexity}
+                        onChange={(value) => setComplexity(value)}
+                        min={1}
+                        max={5}
+                        step={1}
+                    >
+                        <Text>{complexity}</Text>
+                    </Slider>
+                </HStack>
+                <HStack>
+                    <Text>AI Assistance:</Text>
+                    <Switch
+                        isChecked={aiAssistance}
                         onChange={(e) => setAiAssistance(e.target.checked)}
                     />
-                </label>
-            </div>
-            <div className="actions">
-                <button onClick={generateMelody}>Generate Melody</button>
-                <button onClick={playMelody} disabled={isPlaying || melody.length === 0}>
-                    {isPlaying ? 'Playing...' : 'Play Melody'}
-                </button>
-                <button onClick={exportMIDI} disabled={melody.length === 0}>
-                    Export MIDI
-                </button>
-            </div>
-            <div className="melody-display">
-                <h3>Generated Melody:</h3>
-                <ul>
-                    {melody.map((note, index) => (
-                        <li key={index}>{note}</li>
-                    ))}
-                </ul>
-            </div>
-        </div>
+                </HStack>
+                <HStack spacing={4}>
+                    <Button onClick={generateMelody}>Generate Melody</Button>
+                    <Button onClick={playMelody} isDisabled={isPlaying || melody.length === 0}>
+                        {isPlaying ? 'Playing...' : 'Play Melody'}
+                    </Button>
+                    <Button onClick={exportMIDI} isDisabled={melody.length === 0}>
+                        Export MIDI
+                    </Button>
+                </HStack>
+                <Box>
+                    <Heading as="h3" size="md" mb={2}>
+                        Generated Melody:
+                    </Heading>
+                    <List spacing={2}>
+                        {melody.map((note, index) => (
+                            <ListItem key={index}>{note}</ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </VStack>
+        </Box>
     );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi, Chord } from '@tonejs/midi';
+import { Box, Heading, Select, Input, Button, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb } from '@chakra-ui/react';
 
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
@@ -101,67 +102,75 @@ const ChordProgression = () => {
     }, [progression]);
 
     return (
-        <div className={`chord-progression`}>
-            <h2>Chord Progression Generator</h2>
-            <div>
-                <label htmlFor="key-select">Key: </label>
-                <select id="key-select" value={key} onChange={(e) => setKey(e.target.value)}>
-                    {Object.keys(chords).map((chordKey) => (
-                        <option key={chordKey} value={chordKey}>
-                            {chordKey.charAt(0).toUpperCase() + chordKey.slice(1)}
-                        </option>
-                    ))}
-                </select>
-            </div>
-            <div>
-                <label htmlFor="tempo-input">Tempo: </label>
-                <input
-                    id="tempo-input"
-                    type="number"
-                    value={tempo}
-                    onChange={(e) => setTempo(Number(e.target.value))}
-                    min="40"
-                    max="240"
-                />
-            </div>
-            <div>
-                <label htmlFor="length-input">Progression Length: </label>
-                <input
-                    id="length-input"
-                    type="number"
-                    value={progressionLength}
-                    onChange={(e) => setProgressionLength(Number(e.target.value))}
-                    min="2"
-                    max="8"
-                />
-            </div>
-            <div>
-                <label htmlFor="complexity-input">Complexity: </label>
-                <input
-                    id="complexity-input"
-                    type="range"
-                    min="1"
-                    max="3"
-                    value={complexity}
-                    onChange={(e) => setComplexity(Number(e.target.value))}
-                />
-            </div>
-            <button onClick={generateProgression}>Generate Progression</button>
-            <button onClick={playProgression} disabled={progression.length === 0}>
-                {playing ? 'Stop' : 'Play'}
-            </button>
-            <button onClick={exportMIDI} disabled={progression.length === 0}>
-                Export MIDI
-            </button>
-
-            <div className="progression-display">
-                {progression.map((chord, index) => (
-                    <span key={index} className="chord">
-                        {chord}
-                    </span>
-                ))}
-            </div>
-        </div>
+        <Box>
+            <Heading as="h2" size="lg" mb={4}>
+                Chord Progression Generator
+            </Heading>
+            <VStack spacing={4} align="stretch">
+                <HStack>
+                    <Text>Key:</Text>
+                    <Select value={key} onChange={(e) => setKey(e.target.value)}>
+                        {Object.keys(chords).map((chordKey) => (
+                            <option key={chordKey} value={chordKey}>
+                                {chordKey.charAt(0).toUpperCase() + chordKey.slice(1)}
+                            </option>
+                        ))}
+                    </Select>
+                </HStack>
+                <HStack>
+                    <Text>Tempo:</Text>
+                    <Input
+                        type="number"
+                        value={tempo}
+                        onChange={(e) => setTempo(Number(e.target.value))}
+                        min={40}
+                        max={240}
+                    />
+                </HStack>
+                <HStack>
+                    <Text>Progression Length:</Text>
+                    <Input
+                        type="number"
+                        value={progressionLength}
+                        onChange={(e) => setProgressionLength(Number(e.target.value))}
+                        min={2}
+                        max={8}
+                    />
+                </HStack>
+                <Box>
+                    <Text>Complexity:</Text>
+                    <Slider
+                        min={1}
+                        max={3}
+                        step={1}
+                        value={complexity}
+                        onChange={(value) => setComplexity(value)}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                </Box>
+                <HStack>
+                    <Button onClick={generateProgression}>Generate Progression</Button>
+                    <Button onClick={playProgression} isDisabled={progression.length === 0}>
+                        {playing ? 'Stop' : 'Play'}
+                    </Button>
+                    <Button onClick={exportMIDI} isDisabled={progression.length === 0}>
+                        Export MIDI
+                    </Button>
+                </HStack>
+                <Box>
+                    <Text fontWeight="bold">Generated Progression:</Text>
+                    <HStack spacing={2}>
+                        {progression.map((chord, index) => (
+                            <Text key={index}>{chord}</Text>
+                        ))}
+                    </HStack>
+                </Box>
+            </VStack>
+        </Box>
     );
 };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
+import { Box, Heading, Button, VStack, HStack, Input } from '@chakra-ui/react';
 
 const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
@@ -90,7 +91,7 @@ const InstrumentLibrary = () => {
 
         ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].forEach((note, index) => {
             track.addNote({
-                midi: Tone.Midi.fromNote(note),
+                midi: Tone.Frequency(note).toMidi(),
                 time: index * 0.5,
                 duration: 0.5
             });
@@ -106,45 +107,51 @@ const InstrumentLibrary = () => {
     }, []);
 
     return (
-        <div className={`instrument-library `}>
-            <h2>Virtual Instrument Library</h2>
-            <div className="instrument-list">
+        <Box className="instrument-library">
+            <Heading as="h2" size="lg" mb={4}>
+                Virtual Instrument Library
+            </Heading>
+            <HStack spacing={4} mb={4}>
                 {instruments.map((instrument) => (
-                    <button
+                    <Button
                         key={instrument.name}
                         onClick={() => handleInstrumentSelect(instrument)}
-                        className={selectedInstrument === instrument ? 'selected' : ''}
+                        colorScheme={selectedInstrument === instrument ? 'blue' : 'gray'}
                     >
                         {instrument.name}
-                    </button>
+                    </Button>
                 ))}
-            </div>
+            </HStack>
             {selectedInstrument && (
-                <div className="instrument-preview">
-                    <h3>{selectedInstrument.name}</h3>
-                    <div className="piano-keys">
+                <Box className="instrument-preview" mb={4}>
+                    <Heading as="h3" size="md" mb={2}>
+                        {selectedInstrument.name}
+                    </Heading>
+                    <HStack spacing={2} mb={4}>
                         {['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].map((note) => (
-                            <button key={note} onClick={() => playNote(note)}>
+                            <Button key={note} onClick={() => playNote(note)}>
                                 {note}
-                            </button>
+                            </Button>
                         ))}
-                    </div>
-                    <div className="chord-buttons">
-                        <button onClick={() => playChord(['C4', 'E4', 'G4'])}>C Major</button>
-                        <button onClick={() => playChord(['D4', 'F4', 'A4'])}>D Minor</button>
-                        <button onClick={() => playChord(['G4', 'B4', 'D5'])}>G Major</button>
-                    </div>
-                    <button onClick={toggleArpeggio}>
+                    </HStack>
+                    <HStack spacing={4} mb={4}>
+                        <Button onClick={() => playChord(['C4', 'E4', 'G4'])}>C Major</Button>
+                        <Button onClick={() => playChord(['D4', 'F4', 'A4'])}>D Minor</Button>
+                        <Button onClick={() => playChord(['G4', 'B4', 'D5'])}>G Major</Button>
+                    </HStack>
+                    <Button onClick={toggleArpeggio} colorScheme={isPlaying ? 'red' : 'green'}>
                         {isPlaying ? 'Stop Arpeggio' : 'Play Arpeggio'}
-                    </button>
-                </div>
+                    </Button>
+                </Box>
             )}
-            <div className="custom-sample-upload">
-                <h3>Upload Custom Sample</h3>
-                <input type="file" accept="audio/*" onChange={handleCustomSampleUpload} />
-            </div>
-            <button onClick={exportMIDI}>Export MIDI</button>
-        </div>
+            <VStack spacing={4} align="stretch">
+                <Heading as="h3" size="md">
+                    Upload Custom Sample
+                </Heading>
+                <Input type="file" accept="audio/*" onChange={handleCustomSampleUpload} />
+                <Button onClick={exportMIDI}>Export MIDI</Button>
+            </VStack>
+        </Box>
     );
 };
 
