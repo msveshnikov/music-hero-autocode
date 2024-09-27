@@ -87,3 +87,8 @@ This project is licensed under the MIT License. See the LICENSE file for details
 # TODO
 
 -   make nice design
+-   Fix Uncaught runtime errors:
+×
+ERROR
+Invalid argument(s) to setValueAtTime: "F/4", 14.849333333333332
+    at assert (http://localhost:3000/static/js/bundle.js:79954:11)

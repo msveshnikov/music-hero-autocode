@@ -3,18 +3,20 @@ import * as Tone from 'tone';
 
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
-    minor: ['Cm', 'Ddim', 'Eb', 'Fm', 'Gm', 'Ab', 'Bb']
+    minor: ['Cm', 'Ddim', 'Eb', 'Fm', 'Gm', 'Ab', 'Bb'],
 };
 
 const ChordProgression = () => {
     const [progression, setProgression] = useState([]);
     const [key, setKey] = useState('major');
     const [playing, setPlaying] = useState(false);
+    const [synth, setSynth] = useState(null);
 
     useEffect(() => {
-        const synth = new Tone.PolySynth().toDestination();
+        const newSynth = new Tone.PolySynth().toDestination();
+        setSynth(newSynth);
         return () => {
-            synth.dispose();
+            newSynth.dispose();
         };
     }, []);
 
@@ -35,7 +37,6 @@ const ChordProgression = () => {
         }
 
         await Tone.start();
-        const synth = new Tone.PolySynth().toDestination();
         const now = Tone.now();
 
         progression.forEach((chord, index) => {
@@ -44,25 +45,32 @@ const ChordProgression = () => {
 
         setPlaying(true);
         Tone.Transport.start();
+
+        setTimeout(() => {
+            setPlaying(false);
+            Tone.Transport.stop();
+        }, progression.length * Tone.Time('1n').toSeconds() * 1000);
     };
 
     return (
-        <div>
+        <div className="chord-progression">
             <h2>Chord Progression Generator</h2>
             <div>
-                <label>
-                    Key:
-                    <select value={key} onChange={(e) => setKey(e.target.value)}>
-                        <option value="major">Major</option>
-                        <option value="minor">Minor</option>
-                    </select>
-                </label>
+                <label htmlFor="key-select">Key: </label>
+                <select id="key-select" value={key} onChange={(e) => setKey(e.target.value)}>
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                </select>
             </div>
             <button onClick={generateProgression}>Generate Progression</button>
-            <button onClick={playProgression}>{playing ? 'Stop' : 'Play'}</button>
-            <div>
+            <button onClick={playProgression} disabled={progression.length === 0}>
+                {playing ? 'Stop' : 'Play'}
+            </button>
+            <div className="progression-display">
                 {progression.map((chord, index) => (
-                    <span key={index}>{chord} </span>
+                    <span key={index} className="chord">
+                        {chord}
+                    </span>
                 ))}
             </div>
         </div>
