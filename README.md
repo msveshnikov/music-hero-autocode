@@ -1,4 +1,4 @@
-# Music Composition Site
+# Music Composition Site (built by [AutoCode](https://autocode.work) in 20 minutes)
 
 This project aims to create a web-based platform for music composition, offering tools and resources
 for musicians and composers.
@@ -8,7 +8,6 @@ for musicians and composers.
 # DEMO
 
 https://music-composer.netlify.app/
-
 
 ## Features
 
@@ -59,7 +58,6 @@ https://music-composer.netlify.app/
 
 ```
 music-composition-site/
-├── .prettierrc
 ├── package.json
 ├── public/
 │   └── index.html
@@ -85,3 +83,7 @@ submitting pull requests.
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+# TODO
+
+-   make nice design
