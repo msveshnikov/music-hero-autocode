@@ -1,4 +1,4 @@
-import  { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
     Box,
     Heading,
@@ -18,7 +18,8 @@ import {
     FormControl,
     FormLabel,
     List,
-    ListItem
+    ListItem,
+    useColorModeValue
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
@@ -36,8 +37,13 @@ const CollaborationSpace = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [synth, setSynth] = useState(null);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const [complexity, setComplexity] = useState(1);
     const toast = useToast();
     const { sendMessage: sendAIMessage, isLoading } = useAIIntegration();
+    const sequenceRef = useRef(null);
+
+    const bgColor = useColorModeValue('white', 'gray.800');
+    const textColor = useColorModeValue('gray.800', 'white');
 
     useEffect(() => {
         const newSynth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -97,6 +103,9 @@ const CollaborationSpace = () => {
     const playComposition = useCallback(async () => {
         if (isPlaying) {
             Tone.Transport.stop();
+            if (sequenceRef.current) {
+                sequenceRef.current.stop();
+            }
             setIsPlaying(false);
             return;
         }
@@ -112,6 +121,7 @@ const CollaborationSpace = () => {
             '8n'
         );
 
+        sequenceRef.current = sequence;
         sequence.start(0);
         Tone.Transport.start();
         setIsPlaying(true);
@@ -147,8 +157,8 @@ const CollaborationSpace = () => {
     const generateWithAI = useCallback(async () => {
         const prompt = `Generate a melody with ${
             composition.length + 4
-        } notes, considering the current tempo of ${tempo} BPM. Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
-        const aiResponse = await sendAIMessage(prompt, 'English');
+        } notes, considering the current tempo of ${tempo} BPM and complexity level of ${complexity} (1-5). Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
+        const aiResponse = await sendAIMessage(prompt);
         if (aiResponse) {
             const newNotes = aiResponse.split(',').map((note) => ({
                 note: note.trim(),
@@ -156,10 +166,10 @@ const CollaborationSpace = () => {
             }));
             setComposition((prevComposition) => [...prevComposition, ...newNotes]);
         }
-    }, [composition, tempo, sendAIMessage]);
+    }, [composition, tempo, complexity, sendAIMessage]);
 
     return (
-        <Box p={4}>
+        <Box p={4} bg={bgColor} color={textColor}>
             <Heading as="h2" size="lg" mb={4}>
                 Collaboration Space
             </Heading>
@@ -277,6 +287,22 @@ const CollaborationSpace = () => {
                             Generate with AI
                         </Button>
                     </HStack>
+                    <FormControl>
+                        <FormLabel htmlFor="complexity-slider">Complexity: {complexity}</FormLabel>
+                        <Slider
+                            id="complexity-slider"
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={complexity}
+                            onChange={(value) => setComplexity(value)}
+                        >
+                            <SliderTrack>
+                                <SliderFilledTrack />
+                            </SliderTrack>
+                            <SliderThumb />
+                        </Slider>
+                    </FormControl>
                     <Text>Composition: {composition.map((item) => item.note).join(', ')}</Text>
                 </Box>
             </VStack>

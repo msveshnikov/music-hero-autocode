@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import {
     ChakraProvider,
@@ -23,17 +23,17 @@ import {
     ModalCloseButton
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
-import NotationEditor from './components/NotationEditor.jsx';
-import InstrumentLibrary from './components/InstrumentLibrary.jsx';
-import ChordProgression from './components/ChordProgression.jsx';
-import MelodySuggestion from './components/MelodySuggestion.jsx';
-import CollaborationSpace from './components/CollaborationSpace.jsx';
+import NotationEditor from './components/NotationEditor';
+import InstrumentLibrary from './components/InstrumentLibrary';
+import ChordProgression from './components/ChordProgression';
+import MelodySuggestion from './components/MelodySuggestion';
+import CollaborationSpace from './components/CollaborationSpace';
 
 const AudioPlayback = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const toast = useToast();
 
-    const togglePlayback = async () => {
+    const togglePlayback = useCallback(async () => {
         try {
             if (isPlaying) {
                 await Tone.Transport.stop();
@@ -53,7 +53,7 @@ const AudioPlayback = () => {
                 isClosable: true
             });
         }
-    };
+    }, [isPlaying, toast]);
 
     return <Button onClick={togglePlayback}>{isPlaying ? 'Stop' : 'Play'}</Button>;
 };
@@ -62,7 +62,7 @@ const ExportFunctionality = () => {
     const toast = useToast();
     const [isExporting, setIsExporting] = useState(false);
 
-    const exportAudio = async () => {
+    const exportAudio = useCallback(async () => {
         setIsExporting(true);
         try {
             const recorder = new Tone.Recorder();
@@ -100,7 +100,7 @@ const ExportFunctionality = () => {
         } finally {
             setIsExporting(false);
         }
-    };
+    }, [toast]);
 
     return (
         <Button onClick={exportAudio} isLoading={isExporting}>
@@ -142,7 +142,7 @@ function App() {
                             <Box as="header" py={4}>
                                 <Flex align="center">
                                     <Heading as="h1" size="xl">
-                                        Music Hero 2025
+                                        Music Hero
                                     </Heading>
                                     <Spacer />
                                     <Button onClick={toggleColorMode} mr={2}>

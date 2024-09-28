@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import  { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import {
@@ -61,7 +60,7 @@ const MelodySuggestion = () => {
 
         if (aiAssistance) {
             const prompt = `Generate a melody in the ${scale} scale with ${melodyLength} notes. Consider the complexity level of ${complexity} (1-5) where higher complexity means more varied note choices and rhythms. Return the melody as a comma-separated list of note names (e.g., C4,D4,E4).`;
-            const aiResponse = await sendMessage(prompt, 'English');
+            const aiResponse = await sendMessage(prompt);
             if (aiResponse) {
                 newMelody = aiResponse.split(',').map((note) => note.trim());
             } else {

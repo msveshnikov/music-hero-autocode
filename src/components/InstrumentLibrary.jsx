@@ -1,5 +1,6 @@
-import  { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
+import { Midi } from '@tonejs/midi';
 import {
     Box,
     Heading,
@@ -7,25 +8,28 @@ import {
     VStack,
     HStack,
     Input,
-    Select,
     Text,
     Slider,
     SliderTrack,
     SliderFilledTrack,
-    SliderThumb
+    SliderThumb,
+    Switch,
+    useToast,
+    Spinner
 } from '@chakra-ui/react';
-import { Midi } from '@tonejs/midi';
 import useAIIntegration from '../hooks/useAIIntegration';
 
 const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [, setCustomSamples] = useState({});
+    const [setCustomSamples] = useState({});
     const [tempo, setTempo] = useState(120);
     const [complexity, setComplexity] = useState(1);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const { sendMessage, isLoading } = useAIIntegration();
+    const toast = useToast();
 
     useEffect(() => {
         const initialInstruments = [
@@ -106,29 +110,43 @@ const InstrumentLibrary = () => {
     }, []);
 
     const exportMIDI = useCallback(() => {
-        const midi = new Midi();
-        const track = midi.addTrack();
+        setIsExporting(true);
+        try {
+            const midi = new Midi();
+            const track = midi.addTrack();
 
-        ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].forEach((note, index) => {
-            track.addNote({
-                midi: Tone.Frequency(note).toMidi(),
-                time: index * 0.5,
-                duration: 0.5
+            ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].forEach((note, index) => {
+                track.addNote({
+                    midi: Tone.Frequency(note).toMidi(),
+                    time: index * 0.5,
+                    duration: 0.5
+                });
             });
-        });
 
-        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'instrument-sample.mid';
-        a.click();
-        URL.revokeObjectURL(url);
-    }, []);
+            const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'instrument-sample.mid';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting MIDI:', error);
+            toast({
+                title: 'Export Failed',
+                description: 'Unable to export MIDI file',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [toast]);
 
     const generateWithAI = useCallback(async () => {
         const prompt = `Generate a melody with 8 notes for ${selectedInstrument.name}, considering the current complexity level of ${complexity} (1-5). Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
-        const aiResponse = await sendMessage(prompt, 'English');
+        const aiResponse = await sendMessage(prompt);
         if (aiResponse) {
             const melody = aiResponse.split(',').map((note) => note.trim());
             const sequence = new Tone.Sequence(
@@ -148,8 +166,16 @@ const InstrumentLibrary = () => {
                 Tone.Transport.stop();
                 sequence.stop();
             }, `${melody.length * 0.5}s`);
+        } else {
+            toast({
+                title: 'AI Generation Failed',
+                description: 'Unable to generate melody with AI',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
         }
-    }, [selectedInstrument, complexity, tempo, sendMessage]);
+    }, [selectedInstrument, complexity, tempo, sendMessage, toast]);
 
     return (
         <Box className="instrument-library">
@@ -228,19 +254,18 @@ const InstrumentLibrary = () => {
                 </HStack>
                 <HStack>
                     <Text>AI Assistance:</Text>
-                    <Select
-                        value={aiAssistance ? 'on' : 'off'}
-                        onChange={(e) => setAiAssistance(e.target.value === 'on')}
-                    >
-                        <option value="off">Off</option>
-                        <option value="on">On</option>
-                    </Select>
+                    <Switch
+                        isChecked={aiAssistance}
+                        onChange={(e) => setAiAssistance(e.target.checked)}
+                    />
                 </HStack>
                 <HStack>
-                    <Button onClick={exportMIDI}>Export MIDI</Button>
+                    <Button onClick={exportMIDI} isDisabled={isExporting}>
+                        {isExporting ? <Spinner size="sm" /> : 'Export MIDI'}
+                    </Button>
                     <Button
                         onClick={generateWithAI}
-                        isDisabled={!aiAssistance}
+                        isDisabled={!aiAssistance || isLoading}
                         isLoading={isLoading}
                     >
                         Generate with AI

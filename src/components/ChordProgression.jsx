@@ -1,4 +1,4 @@
-import  { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi, Chord } from '@tonejs/midi';
 import {

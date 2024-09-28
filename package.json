@@ -1,6 +1,6 @@
 {
-    "name": "music-composition-site",
-    "version": "0.1.0",
+    "name": "music-hero",
+    "version": "1.0.0",
     "private": true,
     "type": "module",
     "dependencies": {
@@ -22,18 +22,6 @@
         "lint": "eslint src/**/*.jsx",
         "format": "prettier --write src/**/*.js src/**/*.jsx",
         "autocode": "npx autocode-ai"
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
     },
     "devDependencies": {
         "@eslint/js": "^9.9.0",
