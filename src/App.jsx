@@ -13,7 +13,6 @@ import {
     Flex,
     Spacer,
     useToast,
-    useColorMode,
     useDisclosure,
     Modal,
     ModalOverlay,
@@ -113,7 +112,6 @@ function App() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
     const bgColor = useColorModeValue('gray.100', 'gray.900');
     const textColor = useColorModeValue('gray.900', 'gray.100');
-    const { colorMode, toggleColorMode } = useColorMode();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     useEffect(() => {
@@ -145,9 +143,7 @@ function App() {
                                         Music Hero
                                     </Heading>
                                     <Spacer />
-                                    <Button onClick={toggleColorMode} mr={2}>
-                                        Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
-                                    </Button>
+
                                     <Button onClick={onOpen}>Help</Button>
                                 </Flex>
                                 <HStack as="nav" spacing={4} mt={4} overflowX="auto" py={2}>

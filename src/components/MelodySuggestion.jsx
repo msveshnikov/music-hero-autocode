@@ -81,6 +81,7 @@ const MelodySuggestion = () => {
         }
 
         setMelody(newMelody);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scale, complexity, aiAssistance, sendMessage, toast]);
 
     const playMelody = useCallback(async () => {

@@ -107,7 +107,7 @@ const InstrumentLibrary = () => {
             ]);
         };
         reader.readAsArrayBuffer(file);
-    }, []);
+    }, [setCustomSamples]);
 
     const exportMIDI = useCallback(() => {
         setIsExporting(true);
