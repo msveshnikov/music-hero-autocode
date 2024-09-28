@@ -30,7 +30,7 @@ const useAIIntegration = () => {
             setError(null);
 
             try {
-                const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_KEY);
+                const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_KEY);
                 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
                 const prompt = `You are a helpful AI assistant for music composition. Please respond in ${language}. Context: ${conversationHistory
