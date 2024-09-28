@@ -10,8 +10,14 @@ import {
     VStack,
     Input,
     useColorModeValue,
-    Text
+    Text,
+    Slider,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb,
+    Switch
 } from '@chakra-ui/react';
+import useAIIntegration from '../hooks/useAIIntegration';
 
 const NotationEditor = () => {
     const [notes, setNotes] = useState([]);
@@ -20,6 +26,8 @@ const NotationEditor = () => {
     const [timeSignature, setTimeSignature] = useState('4/4');
     const [bpm, setBpm] = useState(120);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [complexity, setComplexity] = useState(1);
+    const [aiAssistance, setAiAssistance] = useState(false);
     const rendererRef = useRef(null);
     const contextRef = useRef(null);
     const staveRef = useRef(null);
@@ -27,6 +35,8 @@ const NotationEditor = () => {
 
     const bgColor = useColorModeValue('white', 'gray.800');
     const textColor = useColorModeValue('gray.800', 'white');
+
+    const { sendMessage, isLoading } = useAIIntegration();
 
     useEffect(() => {
         const div = document.getElementById('notation');
@@ -131,6 +141,20 @@ const NotationEditor = () => {
         URL.revokeObjectURL(url);
     }, [notes]);
 
+    const generateWithAI = useCallback(async () => {
+        const prompt = `Generate a melody with ${
+            notes.length + 4
+        } notes, considering the current complexity level of ${complexity} (1-5). Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
+        const aiResponse = await sendMessage(prompt, 'English');
+        if (aiResponse) {
+            const newNotes = aiResponse.split(',').map((note) => ({
+                pitch: note.trim(),
+                duration: currentDuration
+            }));
+            setNotes((prevNotes) => [...prevNotes, ...newNotes]);
+        }
+    }, [notes, complexity, currentDuration, sendMessage]);
+
     return (
         <Box bg={bgColor} color={textColor} p={4} borderRadius="md" boxShadow="md">
             <Text fontSize="2xl" fontWeight="bold" mb={4}>
@@ -184,9 +208,38 @@ const NotationEditor = () => {
                     />
                 </HStack>
                 <HStack>
+                    <Text>Complexity:</Text>
+                    <Slider
+                        value={complexity}
+                        onChange={(value) => setComplexity(value)}
+                        min={1}
+                        max={5}
+                        step={1}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                </HStack>
+                <HStack>
+                    <Text>AI Assistance:</Text>
+                    <Switch
+                        isChecked={aiAssistance}
+                        onChange={(e) => setAiAssistance(e.target.checked)}
+                    />
+                </HStack>
+                <HStack>
                     <Button onClick={playNotes}>{isPlaying ? 'Stop' : 'Play Notes'}</Button>
                     <Button onClick={clearNotes}>Clear Notes</Button>
                     <Button onClick={exportMIDI}>Export MIDI</Button>
+                    <Button
+                        onClick={generateWithAI}
+                        isDisabled={!aiAssistance}
+                        isLoading={isLoading}
+                    >
+                        Generate with AI
+                    </Button>
                 </HStack>
             </VStack>
         </Box>

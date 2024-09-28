@@ -13,8 +13,11 @@ import {
     Slider,
     SliderTrack,
     SliderFilledTrack,
-    SliderThumb
+    SliderThumb,
+    Switch,
+    useToast
 } from '@chakra-ui/react';
+import useAIIntegration from '../hooks/useAIIntegration';
 
 const chords = {
     major: ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
@@ -31,6 +34,9 @@ const ChordProgression = () => {
     const [tempo, setTempo] = useState(120);
     const [progressionLength, setProgressionLength] = useState(4);
     const [complexity, setComplexity] = useState(1);
+    const [aiAssistance, setAiAssistance] = useState(false);
+    const toast = useToast();
+    const { sendMessage, isLoading } = useAIIntegration();
 
     useEffect(() => {
         const newSynth = new Tone.PolySynth(Tone.Synth, {
@@ -43,21 +49,39 @@ const ChordProgression = () => {
         };
     }, []);
 
-    const generateProgression = useCallback(() => {
-        const newProgression = [];
-        const availableChords = [...chords[key]];
-        for (let i = 0; i < progressionLength; i++) {
-            const randomIndex = Math.floor(Math.random() * availableChords.length);
-            newProgression.push(availableChords[randomIndex]);
-            if (complexity > 1) {
-                availableChords.splice(randomIndex, 1);
-                if (availableChords.length === 0) {
-                    availableChords.push(...chords[key]);
-                }
+    const generateProgression = useCallback(async () => {
+        if (aiAssistance) {
+            const prompt = `Generate a chord progression in ${key} key with ${progressionLength} chords. Consider the complexity level of ${complexity} (1-3) where higher complexity means more varied chord choices. Return the progression as a comma-separated list of chord names.`;
+            const aiResponse = await sendMessage(prompt, 'English');
+            if (aiResponse) {
+                setProgression(aiResponse.split(',').map((chord) => chord.trim()));
+            } else {
+                toast({
+                    title: 'AI Generation Failed',
+                    description: 'Falling back to random generation',
+                    status: 'warning',
+                    duration: 3000,
+                    isClosable: true
+                });
             }
         }
-        setProgression(newProgression);
-    }, [key, progressionLength, complexity]);
+
+        if (!aiAssistance || !progression.length) {
+            const newProgression = [];
+            const availableChords = [...chords[key]];
+            for (let i = 0; i < progressionLength; i++) {
+                const randomIndex = Math.floor(Math.random() * availableChords.length);
+                newProgression.push(availableChords[randomIndex]);
+                if (complexity > 1) {
+                    availableChords.splice(randomIndex, 1);
+                    if (availableChords.length === 0) {
+                        availableChords.push(...chords[key]);
+                    }
+                }
+            }
+            setProgression(newProgression);
+        }
+    }, [key, progressionLength, complexity, aiAssistance, sendMessage, toast, progression.length]);
 
     const playProgression = useCallback(async () => {
         if (playing) {
@@ -72,7 +96,11 @@ const ChordProgression = () => {
         const chordDuration = '2n';
         const sequence = new Tone.Sequence(
             (time, chord) => {
-                synth.triggerAttackRelease([`${chord}4`, `${chord}3`], chordDuration, time);
+                synth.triggerAttackRelease(
+                    Chord.get(chord).notes.map((note) => `${note}4`),
+                    chordDuration,
+                    time
+                );
             },
             progression,
             chordDuration
@@ -166,7 +194,16 @@ const ChordProgression = () => {
                     </Slider>
                 </Box>
                 <HStack>
-                    <Button onClick={generateProgression}>Generate Progression</Button>
+                    <Text>AI Assistance:</Text>
+                    <Switch
+                        isChecked={aiAssistance}
+                        onChange={(e) => setAiAssistance(e.target.checked)}
+                    />
+                </HStack>
+                <HStack>
+                    <Button onClick={generateProgression} isLoading={isLoading}>
+                        Generate Progression
+                    </Button>
                     <Button onClick={playProgression} isDisabled={progression.length === 0}>
                         {playing ? 'Stop' : 'Play'}
                     </Button>

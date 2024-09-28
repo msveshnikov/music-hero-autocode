@@ -1,146 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Composition Site</title>
-    <style>
-        :root {
-            --primary-color: #6200ea;
-            --secondary-color: #03dac6;
-            --background-color: #121212;
-            --surface-color: #1e1e1e;
-            --text-color: #ffffff;
-            --accent-color: #bb86fc;
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: var(--text-color); background-color: var(--background-color); }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-        header { background: var(--surface-color); padding: 1rem 0; position: fixed; width: 100%; top: 0; z-index: 1000; }
-        nav ul { list-style: none; display: flex; justify-content: space-around; }
-        nav ul li a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s ease; }
-        nav ul li a:hover { color: var(--accent-color); }
-        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('music.png') no-repeat center center/cover; height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--text-color); }
-        .hero h1 { font-size: 4rem; margin-bottom: 1rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .hero p { font-size: 1.5rem; margin-bottom: 2rem; }
-        .btn { display: inline-block; background: var(--primary-color); color: var(--text-color); padding: 0.8rem 1.5rem; text-decoration: none; border-radius: 30px; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .btn:hover { background-color: var(--accent-color); transform: translateY(-3px); box-shadow: 0 6px 8px rgba(0,0,0,0.15); }
-        .features { padding: 5rem 0; background-color: var(--surface-color); }
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-        .feature { background: var(--background-color); padding: 2rem; border-radius: 10px; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .feature:hover { transform: translateY(-10px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .feature i { font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem; }
-        .pricing { background: var(--background-color); padding: 5rem 0; }
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-        .price-card { background: var(--surface-color); padding: 2rem; border-radius: 10px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease; }
-        .price-card:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-        .price-card h3 { margin-bottom: 1rem; color: var(--accent-color); }
-        .price { font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem; color: var(--primary-color); }
-        .price-card ul { list-style: none; margin-bottom: 2rem; }
-        .price-card ul li { margin-bottom: 0.5rem; }
-        footer { background: var(--surface-color); color: var(--text-color); text-align: center; padding: 2rem 0; }
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 2.5rem; }
-            .hero p { font-size: 1rem; }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-<body>
-    <header>
-        <nav class="container">
-            <ul>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#demo">Demo</a></li>
-            </ul>
-        </nav>
-    </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Music Composition Site</title>
+        <style>
+            :root {
+                --primary-color: #6200ea;
+                --secondary-color: #03dac6;
+                --background-color: #121212;
+                --surface-color: #1e1e1e;
+                --text-color: #ffffff;
+                --accent-color: #bb86fc;
+            }
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            body {
+                font-family: 'Roboto', sans-serif;
+                line-height: 1.6;
+                color: var(--text-color);
+                background-color: var(--background-color);
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+            header {
+                background: var(--surface-color);
+                padding: 1rem 0;
+                position: fixed;
+                width: 100%;
+                top: 0;
+                z-index: 1000;
+            }
+            nav ul {
+                list-style: none;
+                display: flex;
+                justify-content: space-around;
+            }
+            nav ul li a {
+                color: var(--text-color);
+                text-decoration: none;
+                font-weight: 500;
+                transition: color 0.3s ease;
+            }
+            nav ul li a:hover {
+                color: var(--accent-color);
+            }
+            .hero {
+                background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('music.png') no-repeat center center/cover;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                color: var(--text-color);
+            }
+            .hero h1 {
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .hero p {
+                font-size: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            .btn {
+                display: inline-block;
+                background: var(--primary-color);
+                color: var(--text-color);
+                padding: 0.8rem 1.5rem;
+                text-decoration: none;
+                border-radius: 30px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .btn:hover {
+                background-color: var(--accent-color);
+                transform: translateY(-3px);
+                box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+            }
+            .features {
+                padding: 5rem 0;
+                background-color: var(--surface-color);
+            }
+            .feature-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 2rem;
+            }
+            .feature {
+                background: var(--background-color);
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .feature:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .feature i {
+                font-size: 3rem;
+                color: var(--accent-color);
+                margin-bottom: 1rem;
+            }
+            .pricing {
+                background: var(--background-color);
+                padding: 5rem 0;
+            }
+            .pricing-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+            }
+            .price-card {
+                background: var(--surface-color);
+                padding: 2rem;
+                border-radius: 10px;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+            }
+            .price-card:hover {
+                transform: scale(1.05);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            }
+            .price-card h3 {
+                margin-bottom: 1rem;
+                color: var(--accent-color);
+            }
+            .price {
+                font-size: 2.5rem;
+                font-weight: bold;
+                margin-bottom: 1rem;
+                color: var(--primary-color);
+            }
+            .price-card ul {
+                list-style: none;
+                margin-bottom: 2rem;
+            }
+            .price-card ul li {
+                margin-bottom: 0.5rem;
+            }
+            footer {
+                background: var(--surface-color);
+                color: var(--text-color);
+                text-align: center;
+                padding: 2rem 0;
+            }
+            @media (max-width: 768px) {
+                .hero h1 {
+                    font-size: 2.5rem;
+                }
+                .hero p {
+                    font-size: 1rem;
+                }
+            }
+        </style>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        />
+    </head>
+    <body>
+        <header>
+            <nav class="container">
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="https://music-composer.netlify.app/">Demo</a></li>
+                </ul>
+            </nav>
+        </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>Compose Your Masterpiece</h1>
-            <p>Unleash your creativity with our powerful composition tools</p>
-            <a href="#" class="btn">Start Composing</a>
-        </div>
-    </section>
+        <section class="hero">
+            <div class="container">
+                <h1>Compose Your Masterpiece</h1>
+                <p>Unleash your creativity with our powerful composition tools</p>
+                <a href="https://music-composer.netlify.app/" class="btn">Start Composing</a>
+            </div>
+        </section>
 
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Key Features</h2>
-            <div class="feature-grid">
-                <div class="feature">
-                    <i class="fas fa-music"></i>
-                    <h3>Interactive Notation Editor</h3>
-                    <p>Create and edit music scores with ease</p>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-guitar"></i>
-                    <h3>Virtual Instrument Library</h3>
-                    <p>Access a wide range of high-quality instrument sounds</p>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-brain"></i>
-                    <h3>AI-Powered Suggestions</h3>
-                    <p>Get inspired with chord progressions and melodies</p>
-                </div>
-                <div class="feature">
-                    <i class="fas fa-users"></i>
-                    <h3>Real-time Collaboration</h3>
-                    <p>Work together on ensemble compositions</p>
+        <section id="features" class="features">
+            <div class="container">
+                <h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature">
+                        <i class="fas fa-music"></i>
+                        <h3>Interactive Notation Editor</h3>
+                        <p>Create and edit music scores with ease</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-guitar"></i>
+                        <h3>Virtual Instrument Library</h3>
+                        <p>Access a wide range of high-quality instrument sounds</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-brain"></i>
+                        <h3>AI-Powered Suggestions</h3>
+                        <p>Get inspired with chord progressions and melodies</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-users"></i>
+                        <h3>Real-time Collaboration</h3>
+                        <p>Work together on ensemble compositions</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="pricing" class="pricing">
-        <div class="container">
-            <h2>Pricing Plans</h2>
-            <div class="pricing-grid">
-                <div class="price-card">
-                    <h3>Basic</h3>
-                    <p class="price">$9.99/mo</p>
-                    <ul>
-                        <li>Notation Editor</li>
-                        <li>Basic Instrument Library</li>
-                        <li>5 Projects</li>
-                    </ul>
-                    <a href="#" class="btn">Choose Plan</a>
-                </div>
-                <div class="price-card">
-                    <h3>Pro</h3>
-                    <p class="price">$19.99/mo</p>
-                    <ul>
-                        <li>All Basic Features</li>
-                        <li>Advanced Instrument Library</li>
-                        <li>Unlimited Projects</li>
-                        <li>Chord Progression Generator</li>
-                    </ul>
-                    <a href="#" class="btn">Choose Plan</a>
-                </div>
-                <div class="price-card">
-                    <h3>Enterprise</h3>
-                    <p class="price">$49.99/mo</p>
-                    <ul>
-                        <li>All Pro Features</li>
-                        <li>Melody Suggestion Tool</li>
-                        <li>Real-time Collaboration</li>
-                        <li>Priority Support</li>
-                    </ul>
-                    <a href="#" class="btn">Choose Plan</a>
+        <section id="pricing" class="pricing">
+            <div class="container">
+                <h2>Pricing Plans</h2>
+                <div class="pricing-grid">
+                    <div class="price-card">
+                        <h3>Basic</h3>
+                        <p class="price">$9.99/mo</p>
+                        <ul>
+                            <li>Notation Editor</li>
+                            <li>Basic Instrument Library</li>
+                            <li>5 Projects</li>
+                        </ul>
+                        <a href="#" class="btn">Choose Plan</a>
+                    </div>
+                    <div class="price-card">
+                        <h3>Pro</h3>
+                        <p class="price">$19.99/mo</p>
+                        <ul>
+                            <li>All Basic Features</li>
+                            <li>Advanced Instrument Library</li>
+                            <li>Unlimited Projects</li>
+                            <li>Chord Progression Generator</li>
+                        </ul>
+                        <a href="#" class="btn">Choose Plan</a>
+                    </div>
+                    <div class="price-card">
+                        <h3>Enterprise</h3>
+                        <p class="price">$49.99/mo</p>
+                        <ul>
+                            <li>All Pro Features</li>
+                            <li>Melody Suggestion Tool</li>
+                            <li>Real-time Collaboration</li>
+                            <li>Priority Support</li>
+                        </ul>
+                        <a href="#" class="btn">Choose Plan</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="demo" class="container">
-        <h2>See It in Action</h2>
-        <p>Check out our live demo: <a href="https://music-composer.netlify.app/">https://music-composer.netlify.app/</a></p>
-    </section>
-
-    <footer>
-        <p>&copy; 2023 Music Composition Site. All rights reserved.</p>
-    </footer>
-</body>
+        <footer>
+            <p>&copy; 2024 MaxSoft. All rights reserved.</p>
+        </footer>
+    </body>
 </html>

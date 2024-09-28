@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
@@ -13,7 +14,10 @@ import {
     Switch,
     List,
     ListItem,
-    useToast
+    useToast,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb
 } from '@chakra-ui/react';
 import useAIIntegration from '../hooks/useAIIntegration';
 
@@ -76,22 +80,36 @@ const MelodySuggestion = () => {
         }
 
         setMelody(newMelody);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [scale, complexity, aiAssistance, sendMessage, toast]);
 
     const playMelody = useCallback(async () => {
+        if (isPlaying) {
+            Tone.Transport.stop();
+            setIsPlaying(false);
+            return;
+        }
+
         await Tone.start();
         setIsPlaying(true);
-        const now = Tone.now();
-        const duration = Tone.Time(noteLength).toSeconds();
-        const interval = (60 / tempo) * 4 * duration;
+        Tone.Transport.bpm.value = tempo;
 
-        melody.forEach((note, index) => {
-            synth.triggerAttackRelease(note, noteLength, now + index * interval);
-        });
+        const sequence = new Tone.Sequence(
+            (time, note) => {
+                synth.triggerAttackRelease(note, noteLength, time);
+            },
+            melody,
+            noteLength
+        );
 
-        setTimeout(() => setIsPlaying(false), melody.length * interval * 1000);
-    }, [melody, noteLength, tempo, synth]);
+        sequence.start(0);
+        Tone.Transport.start();
+
+        Tone.Transport.scheduleOnce(() => {
+            setIsPlaying(false);
+            Tone.Transport.stop();
+            sequence.stop();
+        }, `${melody.length * Tone.Time(noteLength).toSeconds()}s`);
+    }, [melody, noteLength, tempo, synth, isPlaying]);
 
     const exportMIDI = useCallback(() => {
         const midi = new Midi();
@@ -139,8 +157,12 @@ const MelodySuggestion = () => {
                         max={240}
                         step={1}
                     >
-                        <Text>{tempo}</Text>
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
                     </Slider>
+                    <Text>{tempo}</Text>
                 </HStack>
                 <HStack>
                     <Text>Note Length:</Text>
@@ -161,8 +183,12 @@ const MelodySuggestion = () => {
                         max={5}
                         step={1}
                     >
-                        <Text>{complexity}</Text>
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
                     </Slider>
+                    <Text>{complexity}</Text>
                 </HStack>
                 <HStack>
                     <Text>AI Assistance:</Text>
@@ -175,8 +201,8 @@ const MelodySuggestion = () => {
                     <Button onClick={generateMelody} isLoading={isLoading}>
                         Generate Melody
                     </Button>
-                    <Button onClick={playMelody} isDisabled={isPlaying || melody.length === 0}>
-                        {isPlaying ? 'Playing...' : 'Play Melody'}
+                    <Button onClick={playMelody} isDisabled={melody.length === 0}>
+                        {isPlaying ? 'Stop' : 'Play Melody'}
                     </Button>
                     <Button onClick={exportMIDI} isDisabled={melody.length === 0}>
                         Export MIDI
