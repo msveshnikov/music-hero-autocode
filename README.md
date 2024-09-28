@@ -33,7 +33,6 @@ for musicians and composers.
 -   Scalable architecture to support future feature additions
 -   Optimized performance for handling complex musical data
 -   Modular component structure for easier maintenance and testing
--   Accessibility features for users with disabilities
 -   Dark mode support for reduced eye strain during long composition sessions
 -   Offline mode capabilities for composing without an internet connection
 -   Progressive Web App (PWA) implementation for improved performance and offline access
