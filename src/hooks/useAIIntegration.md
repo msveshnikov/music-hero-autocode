@@ -2,106 +2,163 @@
 
 ## Overview
 
-`useAIIntegration` is a custom React hook that provides AI integration functionality for a conversational application. It manages the state and logic for interacting with the Google Generative AI API, handling conversation history, and managing conversation sessions.
+The `useAIIntegration` hook is a custom React hook that provides AI-powered functionalities for
+music composition assistance. It integrates with Google's Generative AI to offer features such as
+generating chord progressions, suggesting melodies, providing composition tips, and analyzing
+compositions.
 
-This hook is a crucial part of the application, likely used in the main `App.js` or a high-level component to provide AI-related functionality to the entire application.
+This hook is a core part of the application, likely used across multiple components to provide
+AI-assisted music composition features.
 
 ## Hook Details
 
 ### State Variables
 
-- `aiResponse`: Stores the latest response from the AI.
-- `error`: Holds any error messages that occur during AI communication.
-- `isLoading`: Boolean indicating whether an AI request is in progress.
-- `conversationHistory`: Array storing the entire conversation history.
-- `sessions`: Array of saved conversation sessions.
+-   `aiResponse`: Stores the latest response from the AI.
+-   `error`: Holds any error messages that occur during AI communication.
+-   `isLoading`: Boolean indicating whether an AI request is in progress.
+-   `conversationHistory`: Array of message objects representing the conversation with the AI.
+-   `sessions`: Array of saved conversation sessions.
 
-### Functions
+### Main Functions
 
 #### sendMessage
 
+```javascript
+const sendMessage = async (message, language = 'English') => { ... }
+```
+
 Sends a message to the AI and processes the response.
 
-**Parameters:**
-- `message` (string): The user's message to send to the AI.
-- `language` (string): The language in which the AI should respond.
+-   Parameters:
+    -   `message`: String, the message to send to the AI.
+    -   `language`: String, the language for the AI to respond in (default: 'English').
+-   Returns: Promise resolving to the AI's response text.
 
-**Returns:**
-- Promise<string|null>: The AI's response or null if an error occurred.
+#### generateChordProgression
 
-**Functionality:**
-- Communicates with the Google Generative AI API.
-- Updates the conversation history.
-- Saves the session to local storage.
+```javascript
+const generateChordProgression = async (key, genre) => { ... }
+```
+
+Generates a chord progression based on the given key and genre.
+
+-   Parameters:
+    -   `key`: String, the musical key.
+    -   `genre`: String, the music genre.
+-   Returns: Promise resolving to the AI's suggested chord progression.
+
+#### suggestMelody
+
+```javascript
+const suggestMelody = async (chords, scale, complexity) => { ... }
+```
+
+Suggests a melody that fits with the given chord progression and scale.
+
+-   Parameters:
+    -   `chords`: String, the chord progression.
+    -   `scale`: String, the musical scale.
+    -   `complexity`: Number, the desired complexity level (1-5).
+-   Returns: Promise resolving to the AI's suggested melody.
+
+#### getCompositionTips
+
+```javascript
+const getCompositionTips = async (instrument, style) => { ... }
+```
+
+Provides composition tips for a specific instrument and style.
+
+-   Parameters:
+    -   `instrument`: String, the musical instrument.
+    -   `style`: String, the musical style.
+-   Returns: Promise resolving to the AI's composition tips.
+
+#### analyzeComposition
+
+```javascript
+const analyzeComposition = async (composition) => { ... }
+```
+
+Analyzes a given musical composition and provides feedback.
+
+-   Parameters:
+    -   `composition`: String, the musical composition to analyze.
+-   Returns: Promise resolving to the AI's analysis and feedback.
+
+### Session Management Functions
 
 #### clearConversationHistory
 
-Clears the current conversation history and removes all saved sessions from local storage.
+```javascript
+const clearConversationHistory = () => { ... }
+```
+
+Clears the current conversation history and removes all saved sessions.
 
 #### loadSession
 
-Loads a specific conversation session.
+```javascript
+const loadSession = (sessionId) => { ... }
+```
 
-**Parameters:**
-- `sessionId` (string): The ID of the session to load.
+Loads a previously saved conversation session.
 
-### Helper Functions
+-   Parameters:
+    -   `sessionId`: String, the ID of the session to load.
 
-#### saveSessionToLocalStorage
+#### deleteSession
 
-Internal function to save the current session to local storage.
+```javascript
+const deleteSession = (sessionId) => { ... }
+```
 
-**Parameters:**
-- `sessionData` (object): The session data to save.
+Deletes a saved conversation session.
 
-### Effects
-
-- An effect hook is used to load saved sessions from local storage when the component mounts.
+-   Parameters:
+    -   `sessionId`: String, the ID of the session to delete.
 
 ## Usage Example
 
-```jsx
+```javascript
 import React from 'react';
-import useAIIntegration from './hooks/useAIIntegration';
+import useAIIntegration from '../hooks/useAIIntegration';
 
-function ChatComponent() {
-  const {
-    aiResponse,
-    error,
-    isLoading,
-    sendMessage,
-    conversationHistory,
-    clearConversationHistory,
-    sessions,
-    loadSession
-  } = useAIIntegration();
+const MusicComposer = () => {
+    const { sendMessage, generateChordProgression, suggestMelody, aiResponse, isLoading, error } =
+        useAIIntegration();
 
-  const handleSendMessage = async () => {
-    const userMessage = "Hello, AI!";
-    const language = "English";
-    await sendMessage(userMessage, language);
-  };
+    const handleChordGeneration = async () => {
+        const chords = await generateChordProgression('C major', 'Jazz');
+        console.log('Generated Chords:', chords);
+    };
 
-  return (
-    <div>
-      {/* Render chat interface using the hook's state and functions */}
-    </div>
-  );
-}
+    const handleMelodySuggestion = async () => {
+        const melody = await suggestMelody('Cm7 - F7 - Bbmaj7', 'C minor pentatonic', 3);
+        console.log('Suggested Melody:', melody);
+    };
 
-export default ChatComponent;
+    return (
+        <div>
+            <button onClick={handleChordGeneration}>Generate Chords</button>
+            <button onClick={handleMelodySuggestion}>Suggest Melody</button>
+            {isLoading && <p>Loading...</p>}
+            {error && <p>Error: {error}</p>}
+            <p>AI Response: {aiResponse}</p>
+        </div>
+    );
+};
+
+export default MusicComposer;
 ```
 
-## Dependencies
+This example demonstrates how to use the `useAIIntegration` hook in a React component to generate
+chord progressions and suggest melodies.
 
-This hook relies on the following external libraries and environment variables:
+## Project Context
 
-- `react`: For React hooks functionality.
-- `@google/generative-ai`: For interacting with Google's Generative AI API.
-- `REACT_APP_GEMINI_KEY`: Environment variable storing the API key for Google Generative AI.
-
-## Notes
-
-- Ensure that the `REACT_APP_GEMINI_KEY` environment variable is properly set for the AI functionality to work.
-- This hook manages conversation persistence using local storage, allowing users to resume sessions across page reloads.
-- The hook is designed to work with other components in the project, such as `ConversationLog`, `LanguageSelector`, `SpeechRecognition`, and `TextToSpeech`.
+The `useAIIntegration` hook is located in `src/hooks/useAIIntegration.js`. It's likely used by
+various components in the `src/components` directory, such as `ChordProgression.js`,
+`MelodySuggestion.js`, and `NotationEditor.js`, to provide AI-assisted functionalities for music
+composition.

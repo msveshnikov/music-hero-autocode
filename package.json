@@ -6,10 +6,10 @@
         "@chakra-ui/react": "^2.8.2",
         "@emotion/react": "^11.11.3",
         "@emotion/styled": "^11.11.0",
+        "@google/generative-ai": "^0.17.1",
         "@tonejs/midi": "^2.0.28",
         "framer-motion": "^11.0.3",
         "react": "^18.2.0",
-        "@google/generative-ai": "^0.17.1",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.21.3",
         "react-scripts": "5.0.1",
@@ -20,7 +20,8 @@
         "start": "react-scripts start",
         "build": "react-scripts build",
         "lint": "eslint src/**/*.js",
-        "format": "prettier --write src/**/*.js"
+        "format": "prettier --write src/**/*.js",
+        "autocode": "npx autocode-ai"
     },
     "eslintConfig": {
         "extends": [
