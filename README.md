@@ -124,7 +124,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 # TODO
 
--   Fix play button everywhere
--   Fix endless loop of play
--   Fix midi export
--   Make mobile friendly
+-   Fix play button produce no sound
+-   Fix midi export hungs
+-   Make notes common between all parts of app (if I generate in Melody I should see in Notation Editor, etc)

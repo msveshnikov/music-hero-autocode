@@ -16,7 +16,8 @@ import {
     SliderFilledTrack,
     SliderThumb,
     Switch,
-    useToast
+    useToast,
+    Spinner
 } from '@chakra-ui/react';
 import useAIIntegration from '../hooks/useAIIntegration';
 
@@ -29,6 +30,7 @@ const NotationEditor = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [complexity, setComplexity] = useState(1);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const rendererRef = useRef(null);
     const contextRef = useRef(null);
     const staveRef = useRef(null);
@@ -126,27 +128,41 @@ const NotationEditor = () => {
         setNotes([]);
     }, []);
 
-    const exportMIDI = useCallback(() => {
-        const midi = new Midi();
-        const track = midi.addTrack();
+    const exportMIDI = useCallback(async () => {
+        setIsExporting(true);
+        try {
+            const midi = new Midi();
+            const track = midi.addTrack();
 
-        notes.forEach((note, index) => {
-            const time = index * Tone.Time(note.duration).toSeconds();
-            track.addNote({
-                midi: Tone.Frequency(note.pitch).toMidi(),
-                time: time,
-                duration: Tone.Time(note.duration).toSeconds()
+            notes.forEach((note, index) => {
+                const time = index * Tone.Time(note.duration).toSeconds();
+                track.addNote({
+                    midi: Tone.Frequency(note.pitch).toMidi(),
+                    time: time,
+                    duration: Tone.Time(note.duration).toSeconds()
+                });
             });
-        });
 
-        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'notation.mid';
-        a.click();
-        URL.revokeObjectURL(url);
-    }, [notes]);
+            const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'notation.mid';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting MIDI:', error);
+            toast({
+                title: 'Export Failed',
+                description: 'Unable to export MIDI file',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [notes, toast]);
 
     const generateWithAI = useCallback(async () => {
         const prompt = `Generate a melody with ${
@@ -245,12 +261,18 @@ const NotationEditor = () => {
                     />
                 </HStack>
                 <HStack>
-                    <Button onClick={playNotes}>{isPlaying ? 'Stop' : 'Play Notes'}</Button>
-                    <Button onClick={clearNotes}>Clear Notes</Button>
-                    <Button onClick={exportMIDI}>Export MIDI</Button>
+                    <Button onClick={playNotes} isDisabled={isPlaying || notes.length === 0}>
+                        {isPlaying ? 'Stop' : 'Play Notes'}
+                    </Button>
+                    <Button onClick={clearNotes} isDisabled={notes.length === 0}>
+                        Clear Notes
+                    </Button>
+                    <Button onClick={exportMIDI} isDisabled={isExporting || notes.length === 0}>
+                        {isExporting ? <Spinner size="sm" /> : 'Export MIDI'}
+                    </Button>
                     <Button
                         onClick={generateWithAI}
-                        isDisabled={!aiAssistance}
+                        isDisabled={!aiAssistance || isLoading}
                         isLoading={isLoading}
                     >
                         Generate with AI

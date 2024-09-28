@@ -13,7 +13,6 @@ import {
     SliderTrack,
     SliderFilledTrack,
     SliderThumb,
-    useToast
 } from '@chakra-ui/react';
 import { Midi } from '@tonejs/midi';
 import useAIIntegration from '../hooks/useAIIntegration';
@@ -22,11 +21,10 @@ const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [customSamples, setCustomSamples] = useState({});
+    const [, setCustomSamples] = useState({});
     const [tempo, setTempo] = useState(120);
     const [complexity, setComplexity] = useState(1);
     const [aiAssistance, setAiAssistance] = useState(false);
-    const toast = useToast();
     const { sendMessage, isLoading } = useAIIntegration();
 
     useEffect(() => {
