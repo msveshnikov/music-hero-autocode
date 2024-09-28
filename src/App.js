@@ -12,7 +12,8 @@ import {
     Text,
     Flex,
     Spacer,
-    useToast
+    useToast,
+    useColorMode
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import NotationEditor from './components/NotationEditor';
@@ -27,6 +28,7 @@ const AudioPlayback = () => {
     const togglePlayback = async () => {
         if (isPlaying) {
             Tone.Transport.stop();
+            Tone.Transport.cancel();
         } else {
             await Tone.start();
             Tone.Transport.start();
@@ -73,6 +75,7 @@ function App() {
     const [isOffline, setIsOffline] = useState(!navigator.onLine);
     const bgColor = useColorModeValue('gray.100', 'gray.900');
     const textColor = useColorModeValue('gray.900', 'gray.100');
+    const { colorMode, toggleColorMode } = useColorMode();
 
     useEffect(() => {
         Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
@@ -101,6 +104,9 @@ function App() {
                                         Music Hero
                                     </Heading>
                                     <Spacer />
+                                    <Button onClick={toggleColorMode}>
+                                        Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
+                                    </Button>
                                 </Flex>
                                 <HStack as="nav" spacing={4} mt={4} overflowX="auto" py={2}>
                                     <Link to="/">Notation Editor</Link>

@@ -15,7 +15,8 @@ import {
     SliderTrack,
     SliderFilledTrack,
     SliderThumb,
-    Switch
+    Switch,
+    useToast
 } from '@chakra-ui/react';
 import useAIIntegration from '../hooks/useAIIntegration';
 
@@ -32,11 +33,13 @@ const NotationEditor = () => {
     const contextRef = useRef(null);
     const staveRef = useRef(null);
     const synthRef = useRef(null);
+    const sequenceRef = useRef(null);
 
     const bgColor = useColorModeValue('white', 'gray.800');
     const textColor = useColorModeValue('gray.800', 'white');
 
     const { sendMessage, isLoading } = useAIIntegration();
+    const toast = useToast();
 
     useEffect(() => {
         const div = document.getElementById('notation');
@@ -85,6 +88,9 @@ const NotationEditor = () => {
     const playNotes = useCallback(async () => {
         if (isPlaying) {
             Tone.Transport.stop();
+            if (sequenceRef.current) {
+                sequenceRef.current.stop();
+            }
             setIsPlaying(false);
             return;
         }
@@ -104,6 +110,7 @@ const NotationEditor = () => {
             '4n'
         );
 
+        sequenceRef.current = sequence;
         sequence.start(0);
         Tone.Transport.start();
         setIsPlaying(true);
@@ -145,15 +152,23 @@ const NotationEditor = () => {
         const prompt = `Generate a melody with ${
             notes.length + 4
         } notes, considering the current complexity level of ${complexity} (1-5). Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
-        const aiResponse = await sendMessage(prompt, 'English');
+        const aiResponse = await sendMessage(prompt);
         if (aiResponse) {
             const newNotes = aiResponse.split(',').map((note) => ({
                 pitch: note.trim(),
                 duration: currentDuration
             }));
             setNotes((prevNotes) => [...prevNotes, ...newNotes]);
+        } else {
+            toast({
+                title: 'AI Generation Failed',
+                description: 'Unable to generate melody with AI',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
         }
-    }, [notes, complexity, currentDuration, sendMessage]);
+    }, [notes, complexity, currentDuration, sendMessage, toast]);
 
     return (
         <Box bg={bgColor} color={textColor} p={4} borderRadius="md" boxShadow="md">

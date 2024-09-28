@@ -1,12 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
-import { Box, Heading, Button, VStack, HStack, Input } from '@chakra-ui/react';
+import {
+    Box,
+    Heading,
+    Button,
+    VStack,
+    HStack,
+    Input,
+    Select,
+    Text,
+    Slider,
+    SliderTrack,
+    SliderFilledTrack,
+    SliderThumb,
+    useToast
+} from '@chakra-ui/react';
+import { Midi } from '@tonejs/midi';
+import useAIIntegration from '../hooks/useAIIntegration';
 
 const InstrumentLibrary = () => {
     const [instruments, setInstruments] = useState([]);
     const [selectedInstrument, setSelectedInstrument] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [, setCustomSamples] = useState({});
+    const [customSamples, setCustomSamples] = useState({});
+    const [tempo, setTempo] = useState(120);
+    const [complexity, setComplexity] = useState(1);
+    const [aiAssistance, setAiAssistance] = useState(false);
+    const toast = useToast();
+    const { sendMessage, isLoading } = useAIIntegration();
 
     useEffect(() => {
         const initialInstruments = [
@@ -60,10 +81,11 @@ const InstrumentLibrary = () => {
                 '8n'
             );
             sequence.start(0);
+            Tone.Transport.bpm.value = tempo;
             Tone.Transport.start();
             setIsPlaying(true);
         }
-    }, [isPlaying, selectedInstrument]);
+    }, [isPlaying, selectedInstrument, tempo]);
 
     const handleCustomSampleUpload = useCallback((event) => {
         const file = event.target.files[0];
@@ -86,7 +108,7 @@ const InstrumentLibrary = () => {
     }, []);
 
     const exportMIDI = useCallback(() => {
-        const midi = new Tone.Midi();
+        const midi = new Midi();
         const track = midi.addTrack();
 
         ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].forEach((note, index) => {
@@ -106,12 +128,37 @@ const InstrumentLibrary = () => {
         URL.revokeObjectURL(url);
     }, []);
 
+    const generateWithAI = useCallback(async () => {
+        const prompt = `Generate a melody with 8 notes for ${selectedInstrument.name}, considering the current complexity level of ${complexity} (1-5). Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
+        const aiResponse = await sendMessage(prompt, 'English');
+        if (aiResponse) {
+            const melody = aiResponse.split(',').map((note) => note.trim());
+            const sequence = new Tone.Sequence(
+                (time, note) => {
+                    selectedInstrument.synth.triggerAttackRelease(note, '8n', time);
+                },
+                melody,
+                '8n'
+            );
+            await Tone.start();
+            sequence.start(0);
+            Tone.Transport.bpm.value = tempo;
+            Tone.Transport.start();
+            setIsPlaying(true);
+            Tone.Transport.scheduleOnce(() => {
+                setIsPlaying(false);
+                Tone.Transport.stop();
+                sequence.stop();
+            }, `${melody.length * 0.5}s`);
+        }
+    }, [selectedInstrument, complexity, tempo, sendMessage]);
+
     return (
         <Box className="instrument-library">
             <Heading as="h2" size="lg" mb={4}>
                 Virtual Instrument Library
             </Heading>
-            <HStack spacing={4} mb={4}>
+            <HStack spacing={4} mb={4} flexWrap="wrap">
                 {instruments.map((instrument) => (
                     <Button
                         key={instrument.name}
@@ -127,7 +174,7 @@ const InstrumentLibrary = () => {
                     <Heading as="h3" size="md" mb={2}>
                         {selectedInstrument.name}
                     </Heading>
-                    <HStack spacing={2} mb={4}>
+                    <HStack spacing={2} mb={4} flexWrap="wrap">
                         {['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'].map((note) => (
                             <Button key={note} onClick={() => playNote(note)}>
                                 {note}
@@ -149,7 +196,58 @@ const InstrumentLibrary = () => {
                     Upload Custom Sample
                 </Heading>
                 <Input type="file" accept="audio/*" onChange={handleCustomSampleUpload} />
-                <Button onClick={exportMIDI}>Export MIDI</Button>
+                <HStack>
+                    <Text>Tempo:</Text>
+                    <Slider
+                        value={tempo}
+                        onChange={(value) => setTempo(value)}
+                        min={40}
+                        max={240}
+                        step={1}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                    <Text>{tempo} BPM</Text>
+                </HStack>
+                <HStack>
+                    <Text>Complexity:</Text>
+                    <Slider
+                        value={complexity}
+                        onChange={(value) => setComplexity(value)}
+                        min={1}
+                        max={5}
+                        step={1}
+                    >
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                    <Text>{complexity}</Text>
+                </HStack>
+                <HStack>
+                    <Text>AI Assistance:</Text>
+                    <Select
+                        value={aiAssistance ? 'on' : 'off'}
+                        onChange={(e) => setAiAssistance(e.target.value === 'on')}
+                    >
+                        <option value="off">Off</option>
+                        <option value="on">On</option>
+                    </Select>
+                </HStack>
+                <HStack>
+                    <Button onClick={exportMIDI}>Export MIDI</Button>
+                    <Button
+                        onClick={generateWithAI}
+                        isDisabled={!aiAssistance}
+                        isLoading={isLoading}
+                    >
+                        Generate with AI
+                    </Button>
+                </HStack>
             </VStack>
         </Box>
     );

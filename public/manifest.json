@@ -1,0 +1,49 @@
+{
+    "short_name": "Music Hero",
+    "name": "Music Hero - Web-based Music Composition Platform",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "logo192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "logo512.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff",
+    "description": "A web-based platform for music composition, offering tools and resources for musicians and composers.",
+    "orientation": "any",
+    "categories": ["music", "productivity", "education"],
+    "screenshots": [
+        {
+            "src": "screenshot1.png",
+            "sizes": "1280x720",
+            "type": "image/png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "New Composition",
+            "url": "/new",
+            "icons": [{ "src": "new_icon.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "My Compositions",
+            "url": "/library",
+            "icons": [{ "src": "library_icon.png", "sizes": "192x192" }]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
+}

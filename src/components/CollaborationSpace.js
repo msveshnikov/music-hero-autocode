@@ -16,10 +16,13 @@ import {
     SliderThumb,
     Switch,
     FormControl,
-    FormLabel
+    FormLabel,
+    List,
+    ListItem
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
+import useAIIntegration from '../hooks/useAIIntegration';
 
 const CollaborationSpace = () => {
     const [roomId, setRoomId] = useState('');
@@ -32,7 +35,9 @@ const CollaborationSpace = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [synth, setSynth] = useState(null);
+    const [aiAssistance, setAiAssistance] = useState(false);
     const toast = useToast();
+    const { sendMessage: sendAIMessage, isLoading } = useAIIntegration();
 
     useEffect(() => {
         const newSynth = new Tone.PolySynth(Tone.Synth).toDestination();
@@ -139,6 +144,20 @@ const CollaborationSpace = () => {
         URL.revokeObjectURL(url);
     }, [composition]);
 
+    const generateWithAI = useCallback(async () => {
+        const prompt = `Generate a melody with ${
+            composition.length + 4
+        } notes, considering the current tempo of ${tempo} BPM. Return the melody as a comma-separated list of note names with octaves (e.g., C4,D4,E4).`;
+        const aiResponse = await sendAIMessage(prompt, 'English');
+        if (aiResponse) {
+            const newNotes = aiResponse.split(',').map((note) => ({
+                note: note.trim(),
+                time: Tone.now()
+            }));
+            setComposition((prevComposition) => [...prevComposition, ...newNotes]);
+        }
+    }, [composition, tempo, sendAIMessage]);
+
     return (
         <Box p={4}>
             <Heading as="h2" size="lg" mb={4}>
@@ -157,9 +176,11 @@ const CollaborationSpace = () => {
                     <Heading as="h3" size="md" mb={2}>
                         Participants
                     </Heading>
-                    {participants.map((participant, index) => (
-                        <Text key={index}>{participant}</Text>
-                    ))}
+                    <List>
+                        {participants.map((participant, index) => (
+                            <ListItem key={index}>{participant}</ListItem>
+                        ))}
+                    </List>
                 </Box>
                 <Box>
                     <Heading as="h3" size="md" mb={2}>
@@ -237,6 +258,23 @@ const CollaborationSpace = () => {
                         </Button>
                         <Button onClick={exportMIDI} isDisabled={composition.length === 0}>
                             Export MIDI
+                        </Button>
+                        <FormControl display="flex" alignItems="center">
+                            <FormLabel htmlFor="ai-switch" mb="0">
+                                AI Assistance
+                            </FormLabel>
+                            <Switch
+                                id="ai-switch"
+                                isChecked={aiAssistance}
+                                onChange={(e) => setAiAssistance(e.target.checked)}
+                            />
+                        </FormControl>
+                        <Button
+                            onClick={generateWithAI}
+                            isDisabled={!aiAssistance}
+                            isLoading={isLoading}
+                        >
+                            Generate with AI
                         </Button>
                     </HStack>
                     <Text>Composition: {composition.map((item) => item.note).join(', ')}</Text>

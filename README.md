@@ -126,3 +126,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 -   Fix play button everywhere
 -   Fix endless loop of play
+-   Fix midi export
+-   Make mobile friendly
