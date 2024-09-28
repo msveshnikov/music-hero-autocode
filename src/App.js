@@ -13,7 +13,14 @@ import {
     Flex,
     Spacer,
     useToast,
-    useColorMode
+    useColorMode,
+    useDisclosure,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalCloseButton
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
 import NotationEditor from './components/NotationEditor';
@@ -24,16 +31,28 @@ import CollaborationSpace from './components/CollaborationSpace';
 
 const AudioPlayback = () => {
     const [isPlaying, setIsPlaying] = useState(false);
+    const toast = useToast();
 
     const togglePlayback = async () => {
-        if (isPlaying) {
-            Tone.Transport.stop();
-            Tone.Transport.cancel();
-        } else {
-            await Tone.start();
-            Tone.Transport.start();
+        try {
+            if (isPlaying) {
+                await Tone.Transport.stop();
+                await Tone.Transport.cancel();
+            } else {
+                await Tone.start();
+                await Tone.Transport.start();
+            }
+            setIsPlaying(!isPlaying);
+        } catch (error) {
+            console.error('Error toggling playback:', error);
+            toast({
+                title: 'Playback Error',
+                description: 'An error occurred while toggling playback.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
         }
-        setIsPlaying(!isPlaying);
     };
 
     return <Button onClick={togglePlayback}>{isPlaying ? 'Stop' : 'Play'}</Button>;
@@ -41,34 +60,53 @@ const AudioPlayback = () => {
 
 const ExportFunctionality = () => {
     const toast = useToast();
+    const [isExporting, setIsExporting] = useState(false);
 
     const exportAudio = async () => {
-        const recorder = new Tone.Recorder();
-        const synth = new Tone.Synth().connect(recorder);
+        setIsExporting(true);
+        try {
+            const recorder = new Tone.Recorder();
+            const synth = new Tone.Synth().connect(recorder);
 
-        await recorder.start();
-        await Tone.start();
+            await recorder.start();
+            await Tone.start();
 
-        synth.triggerAttackRelease('C4', '1n');
-        await Tone.getTransport().sleep(2);
+            synth.triggerAttackRelease('C4', '1n');
+            await Tone.getTransport().sleep(2);
 
-        const recording = await recorder.stop();
-        const url = URL.createObjectURL(recording);
-        const anchor = document.createElement('a');
-        anchor.download = 'composition.webm';
-        anchor.href = url;
-        anchor.click();
+            const recording = await recorder.stop();
+            const url = URL.createObjectURL(recording);
+            const anchor = document.createElement('a');
+            anchor.download = 'composition.webm';
+            anchor.href = url;
+            anchor.click();
 
-        toast({
-            title: 'Audio Exported',
-            description: 'Your composition has been exported successfully.',
-            status: 'success',
-            duration: 3000,
-            isClosable: true
-        });
+            toast({
+                title: 'Audio Exported',
+                description: 'Your composition has been exported successfully.',
+                status: 'success',
+                duration: 3000,
+                isClosable: true
+            });
+        } catch (error) {
+            console.error('Error exporting audio:', error);
+            toast({
+                title: 'Export Error',
+                description: 'An error occurred while exporting the audio.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+        } finally {
+            setIsExporting(false);
+        }
     };
 
-    return <Button onClick={exportAudio}>Export Audio</Button>;
+    return (
+        <Button onClick={exportAudio} isLoading={isExporting}>
+            Export Audio
+        </Button>
+    );
 };
 
 function App() {
@@ -76,10 +114,9 @@ function App() {
     const bgColor = useColorModeValue('gray.100', 'gray.900');
     const textColor = useColorModeValue('gray.900', 'gray.100');
     const { colorMode, toggleColorMode } = useColorMode();
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     useEffect(() => {
-        Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
-
         const handleOnline = () => setIsOffline(false);
         const handleOffline = () => setIsOffline(true);
 
@@ -90,6 +127,10 @@ function App() {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
         };
+    }, []);
+
+    useEffect(() => {
+        Tone.setContext(new Tone.Context({ latencyHint: 'interactive' }));
     }, []);
 
     return (
@@ -104,9 +145,10 @@ function App() {
                                         Music Hero
                                     </Heading>
                                     <Spacer />
-                                    <Button onClick={toggleColorMode}>
+                                    <Button onClick={toggleColorMode} mr={2}>
                                         Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
                                     </Button>
+                                    <Button onClick={onOpen}>Help</Button>
                                 </Flex>
                                 <HStack as="nav" spacing={4} mt={4} overflowX="auto" py={2}>
                                     <Link to="/">Notation Editor</Link>
@@ -148,6 +190,23 @@ function App() {
                     </Container>
                 </Box>
             </Router>
+
+            <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Music Hero Help</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Text>
+                            Welcome to Music Hero! This application provides tools for music
+                            composition, including a notation editor, instrument library, chord
+                            progression generator, melody suggestion tool, and collaboration space.
+                            Use the navigation menu to explore different features. For more detailed
+                            instructions, please refer to our documentation.
+                        </Text>
+                    </ModalBody>
+                </ModalContent>
+            </Modal>
         </ChakraProvider>
     );
 }

@@ -12,7 +12,7 @@ import {
     Slider,
     SliderTrack,
     SliderFilledTrack,
-    SliderThumb,
+    SliderThumb
 } from '@chakra-ui/react';
 import { Midi } from '@tonejs/midi';
 import useAIIntegration from '../hooks/useAIIntegration';

@@ -17,7 +17,8 @@ import {
     useToast,
     SliderTrack,
     SliderFilledTrack,
-    SliderThumb
+    SliderThumb,
+    Spinner
 } from '@chakra-ui/react';
 import useAIIntegration from '../hooks/useAIIntegration';
 
@@ -30,6 +31,7 @@ const MelodySuggestion = () => {
     const [complexity, setComplexity] = useState(1);
     const [synth, setSynth] = useState(null);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const toast = useToast();
     const { sendMessage, isLoading } = useAIIntegration();
 
@@ -111,26 +113,40 @@ const MelodySuggestion = () => {
         }, `${melody.length * Tone.Time(noteLength).toSeconds()}s`);
     }, [melody, noteLength, tempo, synth, isPlaying]);
 
-    const exportMIDI = useCallback(() => {
-        const midi = new Midi();
-        const track = midi.addTrack();
+    const exportMIDI = useCallback(async () => {
+        setIsExporting(true);
+        try {
+            const midi = new Midi();
+            const track = midi.addTrack();
 
-        melody.forEach((note, index) => {
-            track.addNote({
-                midi: Tone.Frequency(note).toMidi(),
-                time: index * Tone.Time(noteLength).toSeconds(),
-                duration: Tone.Time(noteLength).toSeconds()
+            melody.forEach((note, index) => {
+                track.addNote({
+                    midi: Tone.Frequency(note).toMidi(),
+                    time: index * Tone.Time(noteLength).toSeconds(),
+                    duration: Tone.Time(noteLength).toSeconds()
+                });
             });
-        });
 
-        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'melody.mid';
-        a.click();
-        URL.revokeObjectURL(url);
-    }, [melody, noteLength]);
+            const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'melody.mid';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting MIDI:', error);
+            toast({
+                title: 'Export Failed',
+                description: 'Unable to export MIDI file',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [melody, noteLength, toast]);
 
     return (
         <Box className="melody-suggestion">
@@ -204,8 +220,11 @@ const MelodySuggestion = () => {
                     <Button onClick={playMelody} isDisabled={melody.length === 0}>
                         {isPlaying ? 'Stop' : 'Play Melody'}
                     </Button>
-                    <Button onClick={exportMIDI} isDisabled={melody.length === 0}>
-                        Export MIDI
+                    <Button
+                        onClick={exportMIDI}
+                        isDisabled={melody.length === 0 || isExporting}
+                    >
+                        {isExporting ? <Spinner size="sm" /> : 'Export MIDI'}
                     </Button>
                 </HStack>
                 <Box>

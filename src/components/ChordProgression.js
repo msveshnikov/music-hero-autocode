@@ -15,7 +15,8 @@ import {
     SliderFilledTrack,
     SliderThumb,
     Switch,
-    useToast
+    useToast,
+    Spinner
 } from '@chakra-ui/react';
 import useAIIntegration from '../hooks/useAIIntegration';
 
@@ -35,6 +36,7 @@ const ChordProgression = () => {
     const [progressionLength, setProgressionLength] = useState(4);
     const [complexity, setComplexity] = useState(1);
     const [aiAssistance, setAiAssistance] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const toast = useToast();
     const { sendMessage, isLoading } = useAIIntegration();
 
@@ -52,7 +54,7 @@ const ChordProgression = () => {
     const generateProgression = useCallback(async () => {
         if (aiAssistance) {
             const prompt = `Generate a chord progression in ${key} key with ${progressionLength} chords. Consider the complexity level of ${complexity} (1-3) where higher complexity means more varied chord choices. Return the progression as a comma-separated list of chord names.`;
-            const aiResponse = await sendMessage(prompt, 'English');
+            const aiResponse = await sendMessage(prompt);
             if (aiResponse) {
                 setProgression(aiResponse.split(',').map((chord) => chord.trim()));
             } else {
@@ -117,30 +119,44 @@ const ChordProgression = () => {
         }, `${progression.length}m`);
     }, [playing, tempo, progression, synth]);
 
-    const exportMIDI = useCallback(() => {
-        const midi = new Midi();
-        const track = midi.addTrack();
+    const exportMIDI = useCallback(async () => {
+        setIsExporting(true);
+        try {
+            const midi = new Midi();
+            const track = midi.addTrack();
 
-        progression.forEach((chord, index) => {
-            const time = index * 2;
-            const notes = Chord.get(chord).notes.map((note) => note + '4');
-            notes.forEach((note) => {
-                track.addNote({
-                    midi: Midi.fromNote(note),
-                    time: time,
-                    duration: 2
+            progression.forEach((chord, index) => {
+                const time = index * 2;
+                const notes = Chord.get(chord).notes.map((note) => note + '4');
+                notes.forEach((note) => {
+                    track.addNote({
+                        midi: Midi.fromNote(note),
+                        time: time,
+                        duration: 2
+                    });
                 });
             });
-        });
 
-        const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'chord-progression.mid';
-        a.click();
-        URL.revokeObjectURL(url);
-    }, [progression]);
+            const blob = new Blob([midi.toArray()], { type: 'audio/midi' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'chord-progression.mid';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error exporting MIDI:', error);
+            toast({
+                title: 'Export Failed',
+                description: 'Unable to export MIDI file',
+                status: 'error',
+                duration: 3000,
+                isClosable: true
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [progression, toast]);
 
     return (
         <Box>
@@ -207,8 +223,11 @@ const ChordProgression = () => {
                     <Button onClick={playProgression} isDisabled={progression.length === 0}>
                         {playing ? 'Stop' : 'Play'}
                     </Button>
-                    <Button onClick={exportMIDI} isDisabled={progression.length === 0}>
-                        Export MIDI
+                    <Button
+                        onClick={exportMIDI}
+                        isDisabled={isExporting || progression.length === 0}
+                    >
+                        {isExporting ? <Spinner size="sm" /> : 'Export MIDI'}
                     </Button>
                 </HStack>
                 <Box>
