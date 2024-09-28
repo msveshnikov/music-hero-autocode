@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import {
     ChakraProvider,
@@ -23,11 +23,11 @@ import {
     ModalCloseButton
 } from '@chakra-ui/react';
 import * as Tone from 'tone';
-import NotationEditor from './components/NotationEditor';
-import InstrumentLibrary from './components/InstrumentLibrary';
-import ChordProgression from './components/ChordProgression';
-import MelodySuggestion from './components/MelodySuggestion';
-import CollaborationSpace from './components/CollaborationSpace';
+import NotationEditor from './components/NotationEditor.jsx';
+import InstrumentLibrary from './components/InstrumentLibrary.jsx';
+import ChordProgression from './components/ChordProgression.jsx';
+import MelodySuggestion from './components/MelodySuggestion.jsx';
+import CollaborationSpace from './components/CollaborationSpace.jsx';
 
 const AudioPlayback = () => {
     const [isPlaying, setIsPlaying] = useState(false);
@@ -142,7 +142,7 @@ function App() {
                             <Box as="header" py={4}>
                                 <Flex align="center">
                                     <Heading as="h1" size="xl">
-                                        Music Hero
+                                        Music Hero 2025
                                     </Heading>
                                     <Spacer />
                                     <Button onClick={toggleColorMode} mr={2}>

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect, useCallback } from 'react';
+import  { useState, useEffect, useCallback } from 'react';
 import * as Tone from 'tone';
 import { Midi } from '@tonejs/midi';
 import {
@@ -220,10 +220,7 @@ const MelodySuggestion = () => {
                     <Button onClick={playMelody} isDisabled={melody.length === 0}>
                         {isPlaying ? 'Stop' : 'Play Melody'}
                     </Button>
-                    <Button
-                        onClick={exportMIDI}
-                        isDisabled={melody.length === 0 || isExporting}
-                    >
+                    <Button onClick={exportMIDI} isDisabled={melody.length === 0 || isExporting}>
                         {isExporting ? <Spinner size="sm" /> : 'Export MIDI'}
                     </Button>
                 </HStack>
